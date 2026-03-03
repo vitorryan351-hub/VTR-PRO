@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VTR PRO v13.1 • Cloud SaaS Edition</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+<style>
+    /* --- SYSTEM VARIABLES --- */
+    :root {
+        --font: 'Plus Jakarta Sans', sans-serif;
+        --primary: #fbbf24; 
+        --primary-glow: rgba(251, 191, 36, 0.4);
+        --success: #10b981;
+        --success-glow: rgba(16, 185, 129, 0.4);
+        --danger: #f43f5e;
+        --danger-glow: rgba(244, 63, 94, 0.4);
+
+        --bg-body: #050507; 
+        --glass-panel: rgba(15, 15, 20, 0.6); 
+        --glass-card: linear-gradient(135deg, rgba(25, 25, 32, 0.6), rgba(15, 15, 20, 0.4)); 
+        --glass-edge: rgba(255, 255, 255, 0.1);
+        --glass-edge-dark: rgba(255, 255, 255, 0.02);
+        --glass-blur: blur(30px);
+        
+        --text-main: #ffffff;
+        --text-muted: #a1a1aa;
+        --sidebar-width: 280px;
+        --header-height: 75px;
+    }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
+
+    * { box-sizing: border-box; outline: none; margin: 0; padding: 0; }
+    body { font-family: var(--font); background: var(--bg-body); color: var(--text-main); height: 100vh; overflow: hidden; position: relative; -webkit-font-smoothing: antialiased; }
+
+    /* --- PREMIUM AURORA --- */
+    .aurora-container { position: fixed; top:0; left:0; width:100%; height:100%; z-index: -2; overflow: hidden; pointer-events: none; }
+    .orb { position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.35; animation: float 30s infinite alternate ease-in-out; }
+    .orb-1 { width: 800px; height: 800px; background: #4f46e5; top: -10%; left: -10%; }
+    .orb-2 { width: 600px; height: 600px; background: #c026d3; bottom: -10%; right: -5%; animation-delay: -5s; opacity: 0.25; }
+    .orb-3 { width: 500px; height: 500px; background: #059669; top: 30%; left: 40%; animation-duration: 40s; opacity: 0.15; }
+    @keyframes float { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(60px, 40px) scale(1.1); } }
+
+    /* --- TELA DE LOGIN PREMIUM --- */
+    #loginScreen {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(5,5,7,0.6); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+        display: flex; align-items: center; justify-content: center; z-index: 9999;
+        transition: opacity 0.5s ease;
+    }
+    .auth-card {
+        background: var(--glass-card); border-top: 1px solid var(--glass-edge); border-left: 1px solid var(--glass-edge); border-right: 1px solid var(--glass-edge-dark); border-bottom: 1px solid var(--glass-edge-dark);
+        padding: 48px; border-radius: 24px; box-shadow: 0 30px 60px rgba(0,0,0,0.5); width: 100%; max-width: 420px; text-align: center;
+    }
+    .auth-input {
+        width: 100%; background: rgba(0,0,0,0.4); border: 1px solid transparent; border-bottom: 1px solid rgba(255,255,255,0.1);
+        border-radius: 12px; padding: 16px; color: var(--text-main); font-family: var(--font); font-weight: 600; font-size: 15px; margin-bottom: 16px; transition: 0.3s;
+    }
+    .auth-input:focus { border-bottom-color: var(--primary); background: rgba(0,0,0,0.6); }
+    .auth-btn { width: 100%; padding: 16px; border-radius: 12px; font-weight: 800; font-size: 15px; cursor: pointer; transition: 0.3s; border: none; font-family: var(--font); }
+    .btn-login { background: linear-gradient(135deg, var(--primary), #d97706); color: #000; box-shadow: 0 10px 20px var(--primary-glow); margin-bottom: 16px; margin-top: 8px;}
+    .btn-login:hover { transform: translateY(-2px); box-shadow: 0 15px 30px var(--primary-glow); }
+    
+    .auth-toggle { font-size: 13px; color: var(--text-muted); margin-top: 16px; font-weight: 500; }
+    .auth-toggle span { color: var(--primary); font-weight: 800; cursor: pointer; transition: 0.2s; }
+    .auth-toggle span:hover { filter: brightness(1.2); text-decoration: underline; }
+
+    .loader { border: 4px solid rgba(255,255,255,0.1); border-top: 4px solid var(--primary); border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; display: none; margin: 0 auto 16px auto; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    /* --- LAYOUT DO APP --- */
+    #app { display: none; height: 100%; opacity: 0; pointer-events: none; transition: opacity 0.5s; } 
+    #app.visible { display: flex; opacity: 1; pointer-events: all; }
+
+    .sidebar { width: var(--sidebar-width); background: var(--glass-panel); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border-right: 1px solid var(--glass-edge-dark); display: flex; flex-direction: column; padding: 28px 24px; justify-content: space-between; box-shadow: 10px 0 30px rgba(0,0,0,0.2); z-index: 10; }
+    .logo-icon { width: 44px; height: 44px; background: linear-gradient(135deg, var(--primary), #d97706); border-radius: 12px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:22px; color:#000; box-shadow: 0 4px 20px rgba(251, 191, 36, 0.25);}
+    .nav-item { display: flex; align-items: center; gap: 14px; padding: 14px 18px; color: var(--text-muted); border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); border: 1px solid transparent; position: relative; overflow: hidden;}
+    .nav-item:hover { color: var(--text-main); background: rgba(255,255,255,0.03); }
+    .nav-item.active { color: var(--primary); background: linear-gradient(90deg, rgba(251, 191, 36, 0.1) 0%, transparent 100%); border-color: rgba(251, 191, 36, 0.2); }
+    .nav-item.active::before { content: ''; position: absolute; left: 0; top: 10%; height: 80%; width: 4px; background: var(--primary); border-radius: 0 4px 4px 0; box-shadow: 0 0 10px var(--primary); }
+
+    .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+    .top-header { height: var(--header-height); display: flex; align-items: center; justify-content: space-between; padding: 0 40px; background: linear-gradient(180deg, rgba(15,15,20,0.8) 0%, rgba(15,15,20,0) 100%); z-index: 5; }
+    .view-section { padding: 20px 40px 60px 40px; overflow-y: auto; height: calc(100vh - var(--header-height)); display: none; animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+    .view-section.active { display: block; }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* --- PREMIUM CARDS --- */
+    .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 24px; }
+    .card { background: var(--glass-card); border-top: 1px solid var(--glass-edge); border-left: 1px solid var(--glass-edge); border-right: 1px solid var(--glass-edge-dark); border-bottom: 1px solid var(--glass-edge-dark); padding: 28px; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); transition: transform 0.4s, border-color 0.4s; }
+    .card:hover { transform: translateY(-4px); border-top-color: rgba(255,255,255,0.2); border-left-color: rgba(255,255,255,0.2); }
+    .aurora-core-card { background: linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(0, 0, 0, 0.4)); border-top: 1px solid rgba(251, 191, 36, 0.4); border-left: 1px solid rgba(251, 191, 36, 0.2); }
+    .aurora-core-card.profit { box-shadow: 0 20px 40px rgba(0,0,0,0.4), inset 0 0 40px rgba(251, 191, 36, 0.1); }
+    .aurora-core-card.loss { border-top-color: rgba(244, 63, 94, 0.4); border-left-color: rgba(244, 63, 94, 0.2); background: linear-gradient(135deg, rgba(244, 63, 94, 0.15), rgba(0, 0, 0, 0.4)); box-shadow: 0 20px 40px rgba(0,0,0,0.4), inset 0 0 40px rgba(244, 63, 94, 0.1); }
+    .card-label { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; }
+    .card-val { font-size: 32px; font-weight: 800; color: var(--text-main); letter-spacing: -1px; line-height: 1.1; }
+
+    .clickable-card { cursor: pointer; position: relative; overflow: hidden;}
+    .clickable-card::after { content: 'Clique para ver o Ranking'; position: absolute; bottom: 10px; right: 15px; font-size: 10px; color: var(--primary); opacity: 0; transition: 0.3s; font-weight: 700; }
+    .clickable-card:hover::after { opacity: 1; }
+
+    /* --- OPERATIONS PREMIUM LAYOUT --- */
+    .ops-header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .date-nav { display: flex; align-items: center; gap: 20px; }
+    .nav-arrow { width: 40px; height: 40px; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-edge); border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted); transition: 0.3s; }
+    .nav-arrow:hover { background: rgba(255,255,255,0.1); color: var(--text-main); transform: scale(1.05); }
+
+    .ops-meta-container { margin-bottom: 32px; background: rgba(0,0,0,0.3); padding: 20px 24px; border-radius: 20px; border-top: 1px solid var(--glass-edge); border-bottom: 1px solid var(--glass-edge-dark); display: flex; flex-direction: column; gap: 12px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5); }
+    .ops-meta-header { display: flex; justify-content: space-between; font-size: 13px; font-weight: 800; color: var(--text-muted); }
+    .ops-progress-track { width: 100%; height: 8px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden; position: relative; }
+    .ops-progress-fill { height: 100%; background: linear-gradient(90deg, #d97706, var(--primary)); width: 0%; border-radius: 4px; box-shadow: 0 0 20px var(--primary); transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .ops-progress-fill.hit { background: linear-gradient(90deg, #059669, var(--success)); box-shadow: 0 0 20px var(--success); }
+
+    .op-list-header { display: grid; grid-template-columns: 30px repeat(5, 1fr) 1.5fr 70px; gap: 16px; padding: 0 24px; margin-bottom: 12px; font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+    .op-row-card { background: var(--glass-card); border-top: 1px solid var(--glass-edge); border-bottom: 1px solid var(--glass-edge-dark); border-radius: 16px; padding: 16px 24px; margin-bottom: 16px; display: grid; grid-template-columns: 30px repeat(5, 1fr) 1.5fr 70px; gap: 16px; align-items: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); transition: 0.3s;}
+    .op-row-card:hover { transform: translateY(-2px); border-top-color: rgba(255,255,255,0.15); box-shadow: 0 15px 30px rgba(0,0,0,0.3); background: linear-gradient(135deg, rgba(35, 35, 45, 0.6), rgba(20, 20, 25, 0.4));}
+    
+    .op-input { width: 100%; background: rgba(0,0,0,0.4); border: 1px solid transparent; border-bottom: 1px solid rgba(255,255,255,0.05); border-radius: 10px; padding: 12px; color: var(--text-main); font-weight: 700; text-align: center; transition: 0.3s; font-family: var(--font); font-size: 14px; }
+    .op-input::placeholder { color: rgba(255,255,255,0.15); font-weight: 500; }
+    .op-input:hover { background: rgba(0,0,0,0.6); border-bottom-color: rgba(255,255,255,0.1); }
+    .cost-in:focus { border-bottom-color: var(--danger); background: rgba(244, 63, 94, 0.05); outline: none; }
+    .gain-in:focus { border-bottom-color: var(--success); background: rgba(16, 185, 129, 0.05); outline: none; }
+
+    .btn-add-large { width: 100%; padding: 20px; background: rgba(251, 191, 36, 0.03); border: 1px dashed rgba(251, 191, 36, 0.3); color: var(--primary); font-weight: 800; letter-spacing: 1px; border-radius: 16px; cursor: pointer; transition: 0.3s; margin-top: 16px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .btn-add-large:hover { background: rgba(251, 191, 36, 0.1); border-color: var(--primary); box-shadow: 0 10px 30px var(--primary-glow); transform: translateY(-2px); }
+
+    /* --- REPORTS & SETTINGS --- */
+    .report-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    .report-table th { text-align: left; font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 800; padding: 12px 16px; border-bottom: 1px solid var(--glass-edge-dark); }
+    .report-table td { padding: 16px; border-bottom: 1px solid rgba(255,255,255,0.02); font-size: 14px; font-weight: 500; }
+    .report-table tfoot td { border-top: 2px solid var(--glass-edge); border-bottom: none; padding-top: 24px; }
+
+    .btn-export { background: linear-gradient(135deg, #10b981, #059669); color: #000; font-weight: 800; border: none; padding: 14px 24px; border-radius: 12px; cursor: pointer; display: inline-flex; gap: 8px; transition: 0.3s; box-shadow: 0 4px 15px var(--success-glow); align-items:center;}
+    .btn-export:hover { transform: translateY(-2px); box-shadow: 0 8px 25px var(--success-glow); }
+
+    .form-input { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-edge-dark); border-bottom: 1px solid var(--glass-edge); color: var(--text-main); padding: 14px 16px; border-radius: 12px; font-family: var(--font); font-weight: 600; font-size: 15px; transition: 0.3s; }
+    .form-input:focus { border-bottom-color: var(--primary); background: rgba(0,0,0,0.5); }
+    
+    .btn-save { background: linear-gradient(135deg, #fbbf24, #d97706); border: none; color: #000; padding: 14px 28px; border-radius: 12px; font-weight: 800; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px var(--primary-glow); letter-spacing: 0.5px; align-items:center; display:inline-flex;}
+    .btn-save:hover { transform: translateY(-2px); box-shadow: 0 8px 25px var(--primary-glow); }
+
+    .btn-logout { background: rgba(244, 63, 94, 0.1); color: var(--danger); border: 1px solid rgba(244, 63, 94, 0.3); padding: 12px 16px; border-radius: 12px; font-weight: 700; font-size: 13px; cursor: pointer; transition: 0.3s; width: 100%; font-family: var(--font);}
+    .btn-logout:hover { background: rgba(244, 63, 94, 0.2); box-shadow: 0 0 15px var(--danger-glow); }
+
+    /* --- MODAL RANKING E TOOLTIP --- */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; z-index: 2000; opacity: 0; transition: opacity 0.3s; }
+    .modal-overlay.show { display: flex; opacity: 1; }
+    .modal-card { background: var(--glass-card); border-top: 1px solid var(--glass-edge); border-left: 1px solid var(--glass-edge); padding: 30px; border-radius: 24px; width: 100%; max-width: 450px; max-height: 80vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0,0,0,0.5); position: relative; }
+    .modal-close { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.05); border: none; color: var(--text-muted); width: 32px; height: 32px; border-radius: 50%; font-size: 16px; cursor: pointer; transition: 0.2s; display:flex; align-items:center; justify-content:center; }
+    .modal-close:hover { background: rgba(244, 63, 94, 0.2); color: var(--danger); }
+    .ranking-item { display: flex; justify-content: space-between; padding: 16px 0; border-bottom: 1px solid rgba(255,255,255,0.05); align-items:center;}
+    
+    .chart-tooltip { position: absolute; background: rgba(15,15,20,0.9); border: 1px solid var(--glass-edge); padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; color: #fff; pointer-events: none; opacity: 0; transition: opacity 0.2s; transform: translate(-50%, 0); z-index: 100; box-shadow: 0 10px 20px rgba(0,0,0,0.5); backdrop-filter: blur(10px); text-align: center; }
+
+    .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="aurora-container">
+    <div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div>
+</div>
+
+<div id="loginScreen">
+    <div class="auth-card">
+        <div style="display:flex; justify-content:center; margin-bottom:24px;"><div class="logo-icon" style="width:64px; height:64px; font-size:28px;">V</div></div>
+        <h2 id="authTitle" style="margin-bottom:8px; font-weight:800; font-size:24px; letter-spacing:-0.5px;">Acesso ao Sistema</h2>
+        <p id="authSubtitle" style="color:var(--text-muted); font-size:14px; margin-bottom:32px;">Faça login para gerenciar suas operações.</p>
+        
+        <div id="loadingAuth" class="loader"></div>
+
+        <input type="email" id="emailInput" class="auth-input" placeholder="E-mail">
+        <input type="password" id="senhaInput" class="auth-input" placeholder="Senha">
+        <input type="password" id="senhaConfirmInput" class="auth-input hidden" placeholder="Confirme sua Senha">
+        
+        <button id="btnAuthAction" class="auth-btn btn-login" onclick="handleAuth()">Entrar no Sistema</button>
+        
+        <div id="authMsg" style="color:var(--danger); font-size:13px; font-weight:600; margin-top:8px;"></div>
+
+        <div class="auth-toggle">
+            <span id="toggleTextMsg" style="color: var(--text-muted); font-weight:500;">Não possui uma conta?</span> 
+            <span id="toggleTextLink" onclick="toggleAuthMode()">Criar Agora</span>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="rankingModal">
+    <div class="modal-card">
+        <button class="modal-close" onclick="closeRanking()">✕</button>
+        <h2 style="font-size:20px; font-weight:800; margin-bottom:8px; letter-spacing:-0.5px;">Ranking de Operações</h2>
+        <p id="rankingTitle" style="color:var(--primary); font-size:13px; font-weight:700; text-transform:uppercase; margin-bottom:24px;">MÊS / ANO</p>
+        <div id="rankingList"></div>
+    </div>
+</div>
+
+<div id="app">
+    <div class="sidebar">
+        <div>
+            <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 48px;">
+                <div class="logo-icon">V</div>
+                <div><div style="font-size:18px; font-weight:800; letter-spacing:-0.5px;">VTR PRO</div><div style="font-size:11px; color:var(--success); font-weight:800; letter-spacing:1px;">● SAAS ONLINE</div></div>
+            </div>
+            <nav style="display: flex; flex-direction: column; gap: 6px;">
+                <div class="nav-item active" onclick="navTo('dashboard', this)">Dashboard Geral</div>
+                <div class="nav-item" onclick="navTo('operations', this)">Console de Operações</div>
+                <div class="nav-item" onclick="navTo('reports', this)">Relatórios e Extrato</div>
+                <div class="nav-item" onclick="navTo('settings', this)">Ajustes de Conta</div>
+            </nav>
+        </div>
+        <div>
+            <div style="background: rgba(0,0,0,0.3); padding: 14px; border-radius: 16px; display: flex; align-items: center; gap: 14px; border: 1px solid var(--glass-edge-dark); margin-bottom: 16px;">
+                <div style="width: 40px; height: 40px; border-radius: 10px; background: #fff; color: #000; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size:16px;">U</div>
+                <div style="overflow: hidden;">
+                    <h4 id="userNameDisplay" style="font-weight:700; font-size:14px; margin:0; color:var(--text-main); white-space: nowrap; text-overflow: ellipsis;">Usuário</h4>
+                    <p id="userEmailDisplay" style="font-size:11px; color:var(--text-muted); margin:0; margin-top:2px; white-space: nowrap; text-overflow: ellipsis;">email@teste.com</p>
+                </div>
+            </div>
+            <button class="btn-logout" onclick="fazerLogout()">Sair do Sistema</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="top-header">
+            <div class="page-title" id="pageTitle">Dashboard Geral</div>
+        </div>
+
+        <div id="view-dashboard" class="view-section active">
+            <div class="kpi-grid">
+                <div class="card aurora-core-card" id="kpiDayCard">
+                    <div class="card-label">Fluxo de Caixa Hoje</div>
+                    <div class="card-val" id="kpiDay">R$ 0.00</div>
+                </div>
+                <div class="card">
+                    <div class="card-label" id="labelMonth">Lucro do Mês Atual</div>
+                    <div class="card-val" id="kpiMonth">R$ 0.00</div>
+                </div>
+                <div class="card">
+                    <div class="card-label">Objetivo de Faturamento (Dia)</div>
+                    <div class="card-val" id="kpiMeta">R$ 0.00</div>
+                </div>
+            </div>
+
+            <div class="kpi-grid">
+                <div class="card">
+                    <div class="card-label" id="label7d">Acumulado (Últimos 7 Dias)</div>
+                    <div class="card-val" id="kpi7d" style="font-size:28px;">R$ 0.00</div>
+                </div>
+                <div class="card">
+                    <div class="card-label" id="label15d">Acumulado (Últimos 15 Dias)</div>
+                    <div class="card-val" id="kpi15d" style="font-size:28px;">R$ 0.00</div>
+                </div>
+                <div class="card">
+                    <div class="card-label" id="label30d">Acumulado (Últimos 30 Dias)</div>
+                    <div class="card-val" id="kpi30d" style="font-size:28px;">R$ 0.00</div>
+                </div>
+            </div>
+
+            <div class="card" style="height: 380px; display:flex; flex-direction:column; margin-bottom:24px; padding-bottom:10px;">
+                <div class="card-label" id="labelEq" style="margin-bottom:16px;">Fluxo de Caixa Diário (Mês Atual)</div>
+                <div id="equalizerChart" style="flex: 1; position: relative; width: 100%;"></div>
+                <div id="chartTooltip" class="chart-tooltip"></div>
+            </div>
+            
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px; margin-top: 10px;">
+                <h3 style="font-size: 16px; font-weight: 700; color: var(--text-main); letter-spacing: 0.5px; text-transform: uppercase;">Histórico de Desempenho Mensal</h3>
+            </div>
+
+            <div class="kpi-grid" id="monthlyAnalyticsGrid"></div>
+        </div>
+
+        <div id="view-operations" class="view-section">
+            <div class="ops-header-bar">
+                <div class="date-nav">
+                    <div class="nav-arrow" onclick="changeDate(-1)">❮</div>
+                    <div class="current-date" id="opsDateDisplay" style="font-size: 28px; font-weight: 800; letter-spacing:-1px;">Hoje</div>
+                    <div class="nav-arrow" onclick="changeDate(1)">❯</div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size:11px; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:4px;">Saldo Consolidado</div>
+                    <div style="font-size:32px; font-weight:800; letter-spacing:-1px;" id="opsDayTotal">R$ 0.00</div>
+                </div>
+            </div>
+
+            <div class="ops-meta-container">
+                <div class="ops-meta-header">
+                    <span>STATUS DA META DIÁRIA</span>
+                    <span id="opsMetaVals" style="color:var(--text-main);">R$ 0 / R$ 1000</span>
+                </div>
+                <div class="ops-progress-track">
+                    <div id="opsProgressBar" class="ops-progress-fill"></div>
+                </div>
+            </div>
+
+            <div id="opsContainer">
+                <div class="op-list-header">
+                    <div>#</div><div>Depósito</div><div>Re-Dep</div><div style="color:var(--danger)">Extra</div><div>Saque</div><div>Baú (x10)</div><div style="text-align:right">Lucro Líquido</div><div style="text-align:center;">Ação</div>
+                </div>
+                <div id="opsList"></div>
+                <button class="btn-add-large" onclick="addOp()">+ INSERIR NOVA OPERAÇÃO</button>
+            </div>
+        </div>
+
+        <div id="view-reports" class="view-section">
+            <div style="display: grid; grid-template-columns: 1fr; gap: 24px;">
+                <div class="card" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+                    <div>
+                        <div class="card-label" style="margin-bottom:8px;">Central de Dados e Backup</div>
+                        <p style="color:var(--text-muted); font-size:13px; margin:0;">Faça o balanço oficial da sua operação. Os dados são salvos na nuvem automaticamente.</p>
+                    </div>
+                    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                        <button class="btn-export" onclick="exportCSV()">📄 Baixar Planilha (CSV)</button>
+                        <button class="btn-save" style="background:rgba(255,255,255,0.05); color:#fff; box-shadow:none; border:1px solid var(--glass-edge);" onclick="exportData()">💾 Baixar Backup Local</button>
+                        <label class="btn-save" style="background:rgba(251, 191, 36, 0.1); color:var(--primary); box-shadow:none; border:1px solid rgba(251, 191, 36, 0.3); cursor:pointer;">
+                            📂 Restaurar Backup
+                            <input type="file" id="importFile" accept=".json" class="hidden" onchange="importData(event)">
+                        </label>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; border-bottom: 1px solid var(--glass-edge-dark); padding-bottom: 16px;">
+                        <div class="card-label" style="margin-bottom:0; font-size:16px; color:var(--text-main);">Extrato Oficial do Mês</div>
+                        <select id="reportMonthSelect" class="form-input" style="width:auto; padding:8px 16px; background:rgba(0,0,0,0.6);" onchange="renderReports()"></select>
+                    </div>
+                    
+                    <table class="report-table">
+                        <thead><tr><th>Data (Dia)</th><th>Total Investido</th><th>Total Retornado</th><th>Lucro Líquido</th></tr></thead>
+                        <tbody id="reportTableBody"></tbody>
+                        <tfoot id="reportTableFoot"></tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-settings" class="view-section">
+            <div class="card" style="max-width:500px;">
+                <h3 style="margin-bottom:32px; font-size:24px; font-weight:800; letter-spacing:-0.5px;">Ajustes de Conta</h3>
+                <div style="margin-bottom:24px;">
+                    <label style="display:block; font-size:13px; font-weight:700; margin-bottom:10px; color:var(--text-muted); letter-spacing:0.5px;">NOME DO OPERADOR</label>
+                    <input type="text" id="setUserName" class="form-input" placeholder="Ex: João Silva">
+                </div>
+                <div style="margin-bottom:40px;">
+                    <label style="display:block; font-size:13px; font-weight:700; margin-bottom:10px; color:var(--text-muted); letter-spacing:0.5px;">META DIÁRIA (R$)</label>
+                    <input type="number" id="setMeta" class="form-input" placeholder="Ex: 1000">
+                </div>
+                <button class="btn-save" style="width:100%; font-size:15px; justify-content:center;" onclick="saveSettings()">Salvar na Nuvem</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // =========================================================================
+    // 🔥 FIREBASE INITIALIZATION 🔥
+    // =========================================================================
+    const firebaseConfig = {
+        apiKey: "AIzaSyCIysAA2hW5IXmqAGYWU6D2dXAll8dXCgU",
+        authDomain: "vtr-pro-29843.firebaseapp.com",
+        projectId: "vtr-pro-29843",
+        storageBucket: "vtr-pro-29843.firebasestorage.app",
+        messagingSenderId: "1006606912791",
+        appId: "1:1006606912791:web:d224bb7a1e786af2063b52",
+        measurementId: "G-EDGNXGCSC8"
+    };
+
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // =========================================================================
+    // LÓGICA DE AUTENTICAÇÃO (LOGIN / REGISTRO COM UX MELHORADA)
+    // =========================================================================
+    let isRegisterMode = false;
+    let currentUser = null;
+
+    function toggleAuthMode() {
+        isRegisterMode = !isRegisterMode;
+        
+        const confirmInput = document.getElementById('senhaConfirmInput');
+        const btnAction = document.getElementById('btnAuthAction');
+        const title = document.getElementById('authTitle');
+        const subtitle = document.getElementById('authSubtitle');
+        const textMsg = document.getElementById('toggleTextMsg');
+        const textLink = document.getElementById('toggleTextLink');
+        const msg = document.getElementById('authMsg');
+        
+        msg.innerText = ""; 
+
+        if(isRegisterMode) {
+            confirmInput.classList.remove('hidden');
+            btnAction.innerText = 'Criar Minha Conta';
+            title.innerText = 'Nova Conta';
+            subtitle.innerText = 'Preencha os dados abaixo para se cadastrar.';
+            textMsg.innerText = 'Já possui uma conta?';
+            textLink.innerText = 'Fazer Login';
+        } else {
+            confirmInput.classList.add('hidden');
+            btnAction.innerText = 'Entrar no Sistema';
+            title.innerText = 'Acesso ao Sistema';
+            subtitle.innerText = 'Faça login para gerenciar suas operações.';
+            textMsg.innerText = 'Não possui uma conta?';
+            textLink.innerText = 'Criar Agora';
+        }
+    }
+
+    function handleAuth() {
+        if(isRegisterMode) criarConta();
+        else fazerLogin();
+    }
+
+    auth.onAuthStateChanged(firebaseUser => {
+        if (firebaseUser) {
+            currentUser = firebaseUser;
+            document.getElementById('loginScreen').style.opacity = '0';
+            setTimeout(() => document.getElementById('loginScreen').style.display = 'none', 500);
+            document.getElementById('app').classList.add('visible');
+            document.getElementById('userEmailDisplay').innerText = firebaseUser.email;
+            
+            loadDataFromCloud();
+        } else {
+            currentUser = null;
+            document.getElementById('app').classList.remove('visible');
+            document.getElementById('loginScreen').style.display = 'flex';
+            setTimeout(() => document.getElementById('loginScreen').style.opacity = '1', 50);
+            document.getElementById('loadingAuth').style.display = 'none';
+        }
+    });
+
+    function criarConta() {
+        const email = document.getElementById('emailInput').value;
+        const senha = document.getElementById('senhaInput').value;
+        const confirmSenha = document.getElementById('senhaConfirmInput').value;
+        const msg = document.getElementById('authMsg');
+        
+        if(!email || senha.length < 6) { msg.innerText = "Email inválido ou senha menor que 6 caracteres."; return; }
+        if(senha !== confirmSenha) { msg.innerText = "As senhas digitadas não coincidem."; return; }
+        
+        document.getElementById('loadingAuth').style.display = 'block';
+        msg.innerText = "";
+
+        auth.createUserWithEmailAndPassword(email, senha).then((userCredential) => {
+            db.collection('users').doc(userCredential.user.uid).set({ name: "Novo Operador", meta: 1000, data: {} });
+        }).catch((error) => { 
+            document.getElementById('loadingAuth').style.display = 'none';
+            msg.innerText = "Erro ao criar conta. Verifique os dados."; 
+        });
+    }
+
+    function fazerLogin() {
+        const email = document.getElementById('emailInput').value;
+        const senha = document.getElementById('senhaInput').value;
+        const msg = document.getElementById('authMsg');
+        
+        if(!email || !senha) { msg.innerText = "Preencha os campos corretamente."; return; }
+
+        document.getElementById('loadingAuth').style.display = 'block';
+        msg.innerText = "";
+
+        auth.signInWithEmailAndPassword(email, senha).catch((error) => {
+            document.getElementById('loadingAuth').style.display = 'none';
+            msg.innerText = "Email ou senha incorretos.";
+        });
+    }
+
+    function fazerLogout() { auth.signOut(); }
+
+    // =========================================================================
+    // LÓGICA DO SAAS E BANCO DE DADOS (DASHBOARD/OPERAÇÕES)
+    // =========================================================================
+    const CONFIG = { bau: 10 };
+    const mesesNomes = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+    let currentDate = new Date().toISOString().split('T')[0];
+    let user = { name: "Operador", meta: 1000, data: {} };
+
+    function loadDataFromCloud() {
+        if(!currentUser) return;
+        db.collection('users').doc(currentUser.uid).get().then(doc => {
+            if (doc.exists) { user = doc.data(); } 
+            else { db.collection('users').doc(currentUser.uid).set(user); }
+            
+            document.getElementById('setUserName').value = user.name || "Operador";
+            document.getElementById('setMeta').value = user.meta || 1000;
+            document.getElementById('userNameDisplay').innerText = user.name || "Operador";
+            
+            const mesAtual = new Date().getMonth();
+            document.getElementById('labelMonth').innerText = `Lucro de ${mesesNomes[mesAtual]}`;
+            document.getElementById('label7d').innerText = `Últimos 7 dias (${mesesNomes[mesAtual]})`;
+            document.getElementById('label15d').innerText = `Últimos 15 dias (${mesesNomes[mesAtual]})`;
+            document.getElementById('label30d').innerText = `Últimos 30 dias (${mesesNomes[mesAtual]})`;
+            document.getElementById('labelEq').innerText = `Fluxo de Caixa Diário (${mesesNomes[mesAtual]})`;
+
+            updateMonthFilterOptions();
+            renderDash();
+            if(document.getElementById('view-operations').classList.contains('active')) renderOps();
+        }).catch(err => {
+            console.error("Erro ao puxar dados da nuvem:", err);
+            alert("Erro de conexão. Verifique sua internet.");
+        });
+    }
+
+    function saveToCloud() {
+        if(!currentUser) return;
+        db.collection('users').doc(currentUser.uid).set(user).catch(err => console.error("Erro ao salvar:", err));
+    }
+
+    // --- NAVEGAÇÃO ---
+    function navTo(v, el) {
+        document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active')); el.classList.add('active');
+        document.querySelectorAll('.view-section').forEach(s=>s.classList.remove('active')); document.getElementById(`view-${v}`).classList.add('active');
+        document.getElementById('pageTitle').innerText = {'dashboard':'Dashboard Geral','operations':'Console de Operações','reports':'Relatórios e Extrato Oficial','settings':'Ajustes de Conta'}[v];
+        
+        if(v==='dashboard') renderDash(); 
+        if(v==='operations') renderOps(); 
+        if(v==='reports') {
+            const prevVal = document.getElementById('reportMonthSelect').value;
+            updateMonthFilterOptions();
+            if(prevVal) document.getElementById('reportMonthSelect').value = prevVal;
+            renderReports();
+        }
+    }
+
+    // --- RENDER DASHBOARD ---
+    function renderDash() {
+        let dTotal=0, mTotal=0, t7=0, t15=0, t30=0;
+        
+        const todayStr = new Date().toISOString().split('T')[0]; 
+        const [currY, currM] = todayStr.split('-');
+        const todayMs = new Date(todayStr).getTime();
+        const monthlyData = {};
+
+        if(!user.data) user.data = {};
+
+        Object.keys(user.data).forEach(d => {
+            const ops = user.data[d];
+            const t = ops.reduce((a,o)=>a+((o.s+o.b*CONFIG.bau)-(o.d+o.r+o.e)),0);
+            
+            const [y, m] = d.split('-');
+            const monthKey = `${y}-${m}`;
+            if(monthlyData[monthKey] === undefined) monthlyData[monthKey] = 0;
+            monthlyData[monthKey] += t;
+
+            if(d === todayStr) dTotal = t;
+
+            const dateMs = new Date(d).getTime();
+            const diffDays = Math.floor((todayMs - dateMs) / (1000 * 60 * 60 * 24));
+            
+            if(diffDays >= 0 && y === currY && m === currM) {
+                if(diffDays < 7) t7 += t;
+                if(diffDays < 15) t15 += t;
+                if(diffDays < 30) t30 += t;
+            }
+        });
+
+        const currMonthKey = `${currY}-${currM}`;
+        if(monthlyData[currMonthKey] === undefined) monthlyData[currMonthKey] = 0;
+        mTotal = monthlyData[currMonthKey];
+
+        document.getElementById('kpiDay').innerText = `R$ ${dTotal.toFixed(2)}`;
+        document.getElementById('kpiMonth').innerText = `R$ ${mTotal.toFixed(2)}`;
+        document.getElementById('kpiMeta').innerText = `R$ ${(user.meta || 1000).toFixed(2)}`;
+        
+        document.getElementById('kpi7d').innerText = `R$ ${t7.toFixed(2)}`;
+        document.getElementById('kpi15d').innerText = `R$ ${t15.toFixed(2)}`;
+        document.getElementById('kpi30d').innerText = `R$ ${t30.toFixed(2)}`;
+
+        document.getElementById('kpi7d').style.color = t7 >= 0 ? 'var(--success)' : 'var(--danger)';
+        document.getElementById('kpi15d').style.color = t15 >= 0 ? 'var(--success)' : 'var(--danger)';
+        document.getElementById('kpi30d').style.color = t30 >= 0 ? 'var(--success)' : 'var(--danger)';
+        
+        const core = document.getElementById('kpiDayCard');
+        core.classList.remove('profit','loss');
+        if(dTotal>0) core.classList.add('profit'); else if(dTotal<0) core.classList.add('loss');
+
+        const analyticsGrid = document.getElementById('monthlyAnalyticsGrid');
+        analyticsGrid.innerHTML = '';
+        const sortedMonths = Object.keys(monthlyData).sort().reverse();
+
+        if(sortedMonths.length === 0) {
+            analyticsGrid.innerHTML = `<div style="color:var(--text-muted); font-size:14px; padding: 20px 0;">Nenhum histórico disponível ainda.</div>`;
+        } else {
+            sortedMonths.forEach(key => {
+                const [y, m] = key.split('-');
+                const val = monthlyData[key];
+                const monthName = mesesNomes[parseInt(m) - 1];
+
+                const card = document.createElement('div');
+                card.className = 'card clickable-card';
+                card.onclick = () => openRanking(key);
+                card.innerHTML = `
+                    <div class="card-label">${monthName} / ${y}</div>
+                    <div class="card-val" style="font-size:28px; color: ${val >= 0 ? 'var(--success)' : 'var(--danger)'}">R$ ${val.toFixed(2)}</div>
+                `;
+                analyticsGrid.appendChild(card);
+            });
+        }
+        renderEqualizer(currY, currM);
+    }
+
+    // --- GRÁFICO EQUALIZADOR ---
+    function renderEqualizer(currY, currM) {
+        const chartBox = document.getElementById('equalizerChart');
+        const tooltip = document.getElementById('chartTooltip');
+        const daysInMonth = new Date(currY, currM, 0).getDate();
+        let maxAbs = 0; const chartData = [];
+
+        for(let i=1; i<=daysInMonth; i++) {
+            const dStr = `${currY}-${currM}-${String(i).padStart(2,'0')}`;
+            const ops = user.data[dStr] || [];
+            const p = ops.reduce((a,o)=>a+((o.s+o.b*CONFIG.bau)-(o.d+o.r+o.e)),0);
+            chartData.push({ day: i, profit: p, date: dStr });
+            if(Math.abs(p) > maxAbs) maxAbs = Math.abs(p);
+        }
+
+        if(maxAbs === 0) { chartBox.innerHTML = '<div style="display:flex; height:100%; align-items:center; justify-content:center; color:var(--text-muted);">Nenhuma operação registrada no mês atual.</div>'; return; }
+
+        const w = chartBox.clientWidth || 800; const h = chartBox.clientHeight || 280; const pad = 20; const zeroY = h / 2;
+        let svg = `<svg width="100%" height="100%" viewBox="0 0 ${w} ${h}" style="overflow:visible"><line x1="${pad}" y1="${zeroY}" x2="${w-pad}" y2="${zeroY}" stroke="rgba(255,255,255,0.1)" stroke-dasharray="4"/>`;
+        const barW = Math.max(4, (w - pad*2) / daysInMonth - 6);
+
+        chartData.forEach((d, i) => {
+            const x = pad + (i * ((w - pad*2) / daysInMonth)) + ((w - pad*2)/daysInMonth/2) - (barW/2);
+            let barH = (Math.abs(d.profit) / maxAbs) * (h/2 - pad);
+            if(barH < 3 && d.profit !== 0) barH = 3; 
+
+            let y = zeroY; let color = 'rgba(255,255,255,0.1)'; let glow = 'none';
+            if(d.profit > 0) { y = zeroY - barH; color = 'var(--success)'; glow = 'drop-shadow(0 0 10px rgba(16,185,129,0.5))'; } 
+            else if(d.profit < 0) { y = zeroY; color = 'var(--danger)'; glow = 'drop-shadow(0 0 10px rgba(244,63,94,0.5))'; }
+
+            if(d.profit !== 0) svg += `<rect x="${x}" y="${y}" width="${barW}" height="${barH}" fill="${color}" rx="3" style="filter:${glow}; cursor:pointer; transition:0.2s;" class="eq-bar" data-val="${d.profit}" data-day="${d.day}" />`;
+            else svg += `<rect x="${x}" y="${zeroY-1.5}" width="${barW}" height="3" fill="rgba(255,255,255,0.05)" rx="1.5" />`;
+        });
+        svg += `</svg>`; chartBox.innerHTML = svg;
+
+        chartBox.querySelectorAll('.eq-bar').forEach(bar => {
+            bar.addEventListener('mouseover', (e) => {
+                const val = parseFloat(bar.getAttribute('data-val'));
+                bar.style.opacity = '0.6';
+                tooltip.innerHTML = `Dia ${bar.getAttribute('data-day')}<br><span style="font-size:16px; color:${val>=0?'var(--success)':'var(--danger)'}">R$ ${val.toFixed(2)}</span>`;
+                tooltip.style.opacity = '1';
+                const rect = chartBox.getBoundingClientRect(); tooltip.style.left = (e.clientX - rect.left) + 'px'; tooltip.style.top = (e.clientY - rect.top - 60) + 'px';
+            });
+            bar.addEventListener('mousemove', (e) => { const rect = chartBox.getBoundingClientRect(); tooltip.style.left = (e.clientX - rect.left) + 'px'; tooltip.style.top = (e.clientY - rect.top - 60) + 'px'; });
+            bar.addEventListener('mouseout', () => { bar.style.opacity = '1'; tooltip.style.opacity = '0'; });
+        });
+    }
+
+    window.addEventListener('resize', () => { if(document.getElementById('view-dashboard').classList.contains('active')) renderDash(); });
+
+    // --- MODAL RANKING ---
+    function openRanking(monthKey) {
+        const [y, m] = monthKey.split('-');
+        document.getElementById('rankingTitle').innerText = `${mesesNomes[parseInt(m) - 1]} DE ${y}`;
+
+        let daysArray = [];
+        Object.keys(user.data).forEach(d => {
+            if(d.startsWith(monthKey) && user.data[d].length > 0) {
+                daysArray.push({ date: d, profit: user.data[d].reduce((a,o)=>a+((o.s+o.b*CONFIG.bau)-(o.d+o.r+o.e)),0) });
+            }
+        });
+        daysArray.sort((a, b) => b.profit - a.profit);
+
+        let html = '';
+        if(daysArray.length === 0) html = '<div style="text-align:center; color:var(--text-muted); padding:20px;">Nenhuma operação registrada.</div>';
+        else {
+            daysArray.forEach((item, index) => {
+                const dd = item.date.split('-')[2];
+                let rankStyle = 'color: var(--text-muted); font-weight:600;'; let trophy = '';
+                if(index === 0) { rankStyle = 'color: #fbbf24; font-weight:800; text-shadow:0 0 10px rgba(251,191,36,0.3);'; trophy = '🥇'; }
+                else if(index === 1) { rankStyle = 'color: #e2e8f0; font-weight:800;'; trophy = '🥈'; }
+                else if(index === 2) { rankStyle = 'color: #d97706; font-weight:800;'; trophy = '🥉'; }
+
+                html += `<div class="ranking-item"><div style="${rankStyle} display:flex; align-items:center; gap:8px;"><span style="font-size:16px; width:20px; text-align:center;">${trophy}</span><span>#${index+1} — Dia ${dd}</span></div><div style="font-weight:800; font-size:15px; color:${item.profit >= 0 ? 'var(--success)' : 'var(--danger)'}">R$ ${item.profit.toFixed(2)}</div></div>`;
+            });
+        }
+        document.getElementById('rankingList').innerHTML = html;
+        document.getElementById('rankingModal').classList.add('show');
+    }
+    function closeRanking() { document.getElementById('rankingModal').classList.remove('show'); }
+
+    // --- OPERAÇÕES ---
+    function cloneOp(i) {
+        const base = user.data[currentDate][i];
+        const cloned = { d: base.d, r: base.r, e: base.e, s: 0, b: 0 };
+        user.data[currentDate].splice(i + 1, 0, cloned);
+        saveToCloud(); 
+        renderOps();
+    }
+
+    function renderOps() {
+        const [y,m,d] = currentDate.split('-'); document.getElementById('opsDateDisplay').innerText = `${d}/${m}/${y}`;
+        const list = document.getElementById('opsList'); list.innerHTML = '';
+        const ops = user.data[currentDate] || [];
+        let profit=0;
+        
+        ops.forEach((o,i) => {
+            const p = (o.s+o.b*CONFIG.bau)-(o.d+o.r+o.e); profit+=p;
+            
+            list.innerHTML += `
+                <div class="op-row-card">
+                    <div style="font-size:12px; font-weight:800; color:var(--text-muted); text-align:center;">${i+1}</div>
+                    <div><input class="op-input cost-in" type="number" value="${o.d===0?'':o.d}" placeholder="0" onchange="upd(${i},'d',this.value)"></div>
+                    <div><input class="op-input cost-in" type="number" value="${o.r===0?'':o.r}" placeholder="0" onchange="upd(${i},'r',this.value)"></div>
+                    <div><input class="op-input cost-in" type="number" value="${o.e===0?'':o.e}" placeholder="0" style="color:var(--danger)" onchange="upd(${i},'e',this.value)"></div>
+                    <div><input class="op-input gain-in" type="number" value="${o.s===0?'':o.s}" placeholder="0" onchange="upd(${i},'s',this.value)"></div>
+                    <div><input class="op-input gain-in" type="number" value="${o.b===0?'':o.b}" placeholder="0" onchange="upd(${i},'b',this.value)"></div>
+                    <div style="text-align:right; font-weight:800; font-size:18px; letter-spacing:-0.5px; color:${p>=0?'var(--success)':'var(--danger)'}">R$ ${p.toFixed(0)}</div>
+                    
+                    <div style="display:flex; gap:8px; justify-content:center;">
+                        <button onclick="cloneOp(${i})" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:18px; transition:0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-muted)'" title="Clonar custos">⧉</button>
+                        <button onclick="del(${i})" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:22px; transition:0.2s;" onmouseover="this.style.color='var(--danger)'" onmouseout="this.style.color='var(--text-muted)'" title="Excluir">×</button>
+                    </div>
+                </div>`;
+        });
+        
+        document.getElementById('opsDayTotal').innerText = `R$ ${profit.toFixed(2)}`;
+        document.getElementById('opsDayTotal').style.color = profit>=0 ? 'var(--success)' : 'var(--danger)';
+
+        const uMeta = user.meta || 1000;
+        const pct = Math.min(100, Math.max(0, (profit/uMeta)*100));
+        const bar = document.getElementById('opsProgressBar');
+        bar.style.width = pct+'%';
+        bar.className = pct>=100 ? 'ops-progress-fill hit' : 'ops-progress-fill';
+        document.getElementById('opsMetaVals').innerText = `R$ ${profit.toFixed(0)} / R$ ${uMeta}`;
+    }
+
+    // --- RELATÓRIOS MENSAL OFICIAL ---
+    function updateMonthFilterOptions() {
+        const select = document.getElementById('reportMonthSelect');
+        const monthsSet = new Set();
+        
+        Object.keys(user.data).forEach(d => {
+            if(user.data[d].length > 0) monthsSet.add(d.substring(0, 7));
+        });
+        
+        const sortedMonths = Array.from(monthsSet).sort().reverse();
+        select.innerHTML = '';
+        
+        if(sortedMonths.length === 0) {
+            const [y, m] = new Date().toISOString().substring(0, 7).split('-');
+            select.innerHTML = `<option value="${y}-${m}">${mesesNomes[parseInt(m)-1]} / ${y}</option>`;
+            return;
+        }
+
+        sortedMonths.forEach(mStr => {
+            const [y, m] = mStr.split('-');
+            select.innerHTML += `<option value="${mStr}">${mesesNomes[parseInt(m)-1]} / ${y}</option>`;
+        });
+    }
+
+    function renderReports() {
+        const tbody = document.getElementById('reportTableBody'); 
+        const tfoot = document.getElementById('reportTableFoot');
+        const selectedMonth = document.getElementById('reportMonthSelect').value;
+        
+        if(!selectedMonth) return;
+
+        const validDates = Object.keys(user.data)
+            .filter(d => d.startsWith(selectedMonth) && user.data[d].length > 0)
+            .sort().reverse();
+        
+        tbody.innerHTML = '';
+        
+        if(validDates.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:30px; color:var(--text-muted);">Nenhuma operação registrada neste mês.</td></tr>`;
+            tfoot.innerHTML = '';
+            return;
+        }
+
+        let totalInvM = 0, totalRetM = 0, totalLucM = 0;
+
+        validDates.forEach(d => {
+            const ops = user.data[d];
+            let inv=0, ret=0, luc=0;
+            
+            ops.forEach(o => { inv+=(o.d+o.r+o.e); ret+=(o.s+o.b*CONFIG.bau); });
+            luc = ret - inv;
+            
+            totalInvM += inv;
+            totalRetM += ret;
+            totalLucM += luc;
+
+            const [y,m,day] = d.split('-');
+            tbody.innerHTML += `<tr>
+                <td style="color:var(--text-muted); font-weight:700;">${day}/${m}/${y}</td>
+                <td style="color:var(--danger)">R$ ${inv.toFixed(2)}</td>
+                <td style="color:var(--success)">R$ ${ret.toFixed(2)}</td>
+                <td style="font-weight:800; color:${luc>=0?'var(--success)':'var(--danger)'}">R$ ${luc.toFixed(2)}</td>
+            </tr>`;
+        });
+
+        tfoot.innerHTML = `
+            <tr>
+                <td style="color:var(--text-main); font-weight:800;">BALANÇO FINAL</td>
+                <td style="color:var(--danger); font-weight:800; font-size:16px;">R$ ${totalInvM.toFixed(2)}</td>
+                <td style="color:var(--success); font-weight:800; font-size:16px;">R$ ${totalRetM.toFixed(2)}</td>
+                <td style="font-weight:800; font-size:20px; color:${totalLucM>=0?'var(--success)':'var(--danger)'}">R$ ${totalLucM.toFixed(2)}</td>
+            </tr>
+        `;
+    }
+
+    // --- ACÕES COM O BANCO DE DADOS ---
+    function addOp() { if(!user.data[currentDate]) user.data[currentDate]=[]; user.data[currentDate].push({d:0,r:0,e:0,s:0,b:0}); saveToCloud(); renderOps(); setTimeout(()=>document.querySelector('.view-section.active').scrollTo({top: 9999, behavior: 'smooth'}), 100); }
+    function upd(i,f,v) { user.data[currentDate][i][f] = Number(v) || 0; saveToCloud(); renderOps(); }
+    function del(i) { user.data[currentDate].splice(i,1); saveToCloud(); renderOps(); }
+    function changeDate(d) { const dt = new Date(currentDate); dt.setDate(dt.getDate()+d); currentDate = dt.toISOString().split('T')[0]; renderOps(); }
+    
+    function saveSettings() { 
+        user.name=document.getElementById('setUserName').value || "Usuário"; 
+        user.meta=Number(document.getElementById('setMeta').value) || 1000; 
+        saveToCloud(); 
+        document.getElementById('userNameDisplay').innerText = user.name; 
+        alert('Configurações salvas na nuvem com sucesso!'); 
+        renderDash(); 
+    }
+    
+    function importData(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const importedData = JSON.parse(e.target.result);
+                if(importedData.data) { 
+                    user = {...user, ...importedData}; 
+                    saveToCloud();
+                    renderDash(); 
+                    if(document.getElementById('view-reports').classList.contains('active')) {
+                        updateMonthFilterOptions(); renderReports();
+                    }
+                    alert("Backup enviado e restaurado na nuvem com sucesso!");
+                } else { alert("Arquivo inválido."); }
+            } catch(err) { alert("Erro ao ler o arquivo JSON."); }
+        };
+        reader.readAsText(file);
+        event.target.value = ''; 
+    }
+
+    function exportData() { const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(user)],{type:'application/json'})); a.download=`VTR_CLOUD_BKP_${new Date().toISOString().split('T')[0]}.json`; a.click(); }
+
+    function exportCSV() {
+        let csvContent = "data:text/csv;charset=utf-8,Data,Investido,Retornado,Lucro\n";
+        Object.keys(user.data).sort().forEach(d => {
+            const ops = user.data[d];
+            if(ops.length===0) return;
+            let inv=0, ret=0;
+            ops.forEach(o => { inv+=(o.d+o.r+o.e); ret+=(o.s+o.b*CONFIG.bau); });
+            csvContent += `${d},${inv.toFixed(2)},${ret.toFixed(2)},${(ret-inv).toFixed(2)}\n`;
+        });
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a"); link.setAttribute("href", encodedUri); link.setAttribute("download", "relatorio_financeiro.csv");
+        document.body.appendChild(link); link.click(); link.remove();
+    }
+
+    document.addEventListener('keydown', e => { 
+        if(e.code === 'Space' && e.target.tagName !== 'INPUT') { 
+            e.preventDefault(); 
+            if(document.getElementById('view-operations').classList.contains('active')) addOp(); 
+            else navTo('operations', document.querySelectorAll('.nav-item')[1]); 
+        } 
+        if(e.code === 'Escape') closeRanking();
+    });
+</script>
+</body>
+</html>
