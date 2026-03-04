@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>VTR PRO v13.3 • Cloud Mobile</title>
+<title>VTR PRO v13.4 • Cloud Mobile</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -60,6 +60,7 @@
     .auth-card {
         background: var(--glass-card); border-top: 1px solid var(--glass-edge); border-left: 1px solid var(--glass-edge); 
         padding: 40px 30px; border-radius: 24px; box-shadow: 0 30px 60px rgba(0,0,0,0.5); width: 100%; max-width: 420px; text-align: center;
+        transition: all 0.3s ease;
     }
     .auth-input {
         width: 100%; background: rgba(0,0,0,0.4); border: 1px solid transparent; border-bottom: 1px solid rgba(255,255,255,0.1);
@@ -79,7 +80,7 @@
     #app.visible { display: flex; opacity: 1; pointer-events: all; }
 
     /* SIDEBAR (DESKTOP) */
-    .sidebar { width: var(--sidebar-width); background: var(--glass-panel); backdrop-filter: var(--glass-blur); border-right: 1px solid var(--glass-edge-dark); display: flex; flex-direction: column; padding: 28px 24px; justify-content: space-between; box-shadow: 10px 0 30px rgba(0,0,0,0.2); z-index: 100; transition: transform 0.3s ease; }
+    .sidebar { width: var(--sidebar-width); background: var(--glass-panel); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border-right: 1px solid var(--glass-edge-dark); display: flex; flex-direction: column; padding: 28px 24px; justify-content: space-between; box-shadow: 10px 0 30px rgba(0,0,0,0.2); z-index: 100; transition: transform 0.3s ease; }
     .logo-icon { width: 44px; height: 44px; background: linear-gradient(135deg, var(--primary), #d97706); border-radius: 12px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:22px; color:#000; box-shadow: 0 4px 20px rgba(251, 191, 36, 0.25);}
     .nav-item { display: flex; align-items: center; gap: 14px; padding: 14px 18px; color: var(--text-muted); border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 14px; transition: 0.3s; margin-bottom: 4px; }
     .nav-item:hover { color: var(--text-main); background: rgba(255,255,255,0.03); }
@@ -170,26 +171,26 @@
 <div id="loginScreen">
     <div class="auth-card">
         <div style="display:flex; justify-content:center; margin-bottom:20px;"><div class="logo-icon" style="width:56px; height:56px; font-size:24px;">V</div></div>
+        
         <h2 id="authTitle" style="margin-bottom:8px; font-weight:800; font-size:22px;">Acesso ao Sistema</h2>
         <p id="authSubtitle" style="color:var(--text-muted); font-size:13px; margin-bottom:24px;">Gerencie suas operações na nuvem.</p>
         
         <div id="loadingAuth" class="loader"></div>
 
-        <input type="email" id="emailInput" class="auth-input" placeholder="E-mail">
+        <input type="email" id="emailInput" class="auth-input" placeholder="E-mail cadastrado">
         <input type="password" id="senhaInput" class="auth-input" placeholder="Senha">
+        <input type="password" id="senhaConfirmInput" class="auth-input hidden" placeholder="Confirme sua Senha">
         
         <div id="forgotPasswordWrapper" style="text-align: right; width: 100%; margin-top: -8px; margin-bottom: 16px;">
-            <span onclick="recuperarSenha()" style="font-size: 12px; color: var(--primary); cursor: pointer; font-weight: 600; transition: 0.2s;">Esqueci minha senha</span>
+            <span onclick="setAuthMode('forgot')" style="font-size: 12px; color: var(--primary); cursor: pointer; font-weight: 600; transition: 0.2s;">Esqueci minha senha</span>
         </div>
-
-        <input type="password" id="senhaConfirmInput" class="auth-input hidden" placeholder="Confirme sua Senha">
         
         <button id="btnAuthAction" class="auth-btn btn-login" onclick="handleAuth()">Entrar no Sistema</button>
         <div id="authMsg" style="color:var(--danger); font-size:12px; font-weight:600; margin-top:8px;"></div>
 
-        <div class="auth-toggle">
-            <span id="toggleTextMsg" style="color: var(--text-muted);">Não possui uma conta?</span> 
-            <span id="toggleTextLink" onclick="toggleAuthMode()">Criar Agora</span>
+        <div class="auth-toggle" id="authToggleContainer">
+            <span style="color: var(--text-muted);">Não possui uma conta?</span> 
+            <span onclick="setAuthMode('register')">Criar Agora</span>
         </div>
     </div>
 </div>
@@ -204,7 +205,6 @@
 </div>
 
 <div id="app">
-    
     <div class="mobile-header">
         <div style="display: flex; align-items: center; gap: 12px;">
             <div class="logo-icon" style="width:36px; height:36px; font-size:16px;">V</div>
@@ -385,53 +385,68 @@
         document.getElementById('mobileOverlay').classList.toggle('open');
     }
 
-    // --- LÓGICA DE AUTENTICAÇÃO ---
-    let isRegisterMode = false;
+    // --- LÓGICA DE AUTENTICAÇÃO (FLUXO TRIPLO) ---
+    let authMode = 'login'; // pode ser: 'login', 'register', 'forgot'
     let currentUser = null;
 
-    function toggleAuthMode() {
-        isRegisterMode = !isRegisterMode;
+    function setAuthMode(mode) {
+        authMode = mode;
         const confirmInput = document.getElementById('senhaConfirmInput');
+        const senhaInput = document.getElementById('senhaInput');
         const btnAction = document.getElementById('btnAuthAction');
         const title = document.getElementById('authTitle');
         const subtitle = document.getElementById('authSubtitle');
         const textMsg = document.getElementById('toggleTextMsg');
-        const textLink = document.getElementById('toggleTextLink');
+        const toggleContainer = document.getElementById('authToggleContainer');
+        const forgotWrapper = document.getElementById('forgotPasswordWrapper');
         const msg = document.getElementById('authMsg');
-        const forgotLink = document.getElementById('forgotPasswordWrapper');
         
         msg.innerText = ""; 
-        if(isRegisterMode) {
-            confirmInput.classList.remove('hidden');
-            forgotLink.classList.add('hidden'); // Esconde o botão de esqueci a senha
-            btnAction.innerText = 'Criar Minha Conta';
-            title.innerText = 'Nova Conta';
-            subtitle.innerText = 'Preencha os dados para se cadastrar.';
-            textMsg.innerText = 'Já possui uma conta?';
-            textLink.innerText = 'Fazer Login';
-        } else {
+        document.getElementById('senhaInput').value = "";
+        document.getElementById('senhaConfirmInput').value = "";
+
+        if(mode === 'login') {
+            senhaInput.classList.remove('hidden');
             confirmInput.classList.add('hidden');
-            forgotLink.classList.remove('hidden'); // Mostra o botão de esqueci a senha
+            forgotWrapper.classList.remove('hidden');
             btnAction.innerText = 'Entrar no Sistema';
             title.innerText = 'Acesso ao Sistema';
             subtitle.innerText = 'Faça login para gerenciar suas operações.';
-            textMsg.innerText = 'Não possui uma conta?';
-            textLink.innerText = 'Criar Agora';
+            toggleContainer.innerHTML = `<span style="color: var(--text-muted);">Não possui uma conta?</span> <span onclick="setAuthMode('register')" style="color: var(--primary); font-weight: 800; cursor: pointer;">Criar Agora</span>`;
+        } 
+        else if(mode === 'register') {
+            senhaInput.classList.remove('hidden');
+            confirmInput.classList.remove('hidden');
+            forgotWrapper.classList.add('hidden');
+            btnAction.innerText = 'Criar Minha Conta';
+            title.innerText = 'Nova Conta';
+            subtitle.innerText = 'Preencha os dados para se cadastrar.';
+            toggleContainer.innerHTML = `<span style="color: var(--text-muted);">Já possui uma conta?</span> <span onclick="setAuthMode('login')" style="color: var(--primary); font-weight: 800; cursor: pointer;">Fazer Login</span>`;
+        }
+        else if(mode === 'forgot') {
+            senhaInput.classList.add('hidden');
+            confirmInput.classList.add('hidden');
+            forgotWrapper.classList.add('hidden');
+            btnAction.innerText = 'Enviar Link de Recuperação';
+            title.innerText = 'Recuperar Senha';
+            subtitle.innerText = 'Digite seu e-mail cadastrado. Enviaremos um link de redefinição.';
+            toggleContainer.innerHTML = `<span onclick="setAuthMode('login')" style="color: var(--primary); font-weight: 800; cursor: pointer;">← Voltar para o Login</span>`;
         }
     }
 
     function handleAuth() {
-        if(isRegisterMode) criarConta(); else fazerLogin();
+        if(authMode === 'login') fazerLogin();
+        else if(authMode === 'register') criarConta();
+        else if(authMode === 'forgot') recuperarSenha();
     }
 
-    // FUNÇÃO DE RECUPERAR SENHA
     function recuperarSenha() {
         const email = document.getElementById('emailInput').value;
         const msg = document.getElementById('authMsg');
 
         if(!email) {
             msg.style.color = "var(--danger)";
-            msg.innerText = "Por favor, digite seu e-mail no campo acima para redefinir a senha.";
+            msg.innerText = "Por favor, digite seu e-mail no campo acima.";
             return;
         }
 
@@ -441,17 +456,13 @@
         auth.sendPasswordResetEmail(email).then(() => {
             document.getElementById('loadingAuth').style.display = 'none';
             msg.style.color = "var(--success)";
-            msg.innerText = "E-mail de redefinição enviado! Verifique sua caixa de entrada.";
+            msg.innerText = "Link enviado! Verifique sua caixa de entrada e spam.";
         }).catch((error) => {
             document.getElementById('loadingAuth').style.display = 'none';
             msg.style.color = "var(--danger)";
-            if(error.code === 'auth/user-not-found') {
-                msg.innerText = "Não há usuário cadastrado com este e-mail.";
-            } else if(error.code === 'auth/invalid-email') {
-                msg.innerText = "Formato de e-mail inválido.";
-            } else {
-                msg.innerText = "Erro ao enviar e-mail: " + error.message;
-            }
+            if(error.code === 'auth/user-not-found') msg.innerText = "E-mail não cadastrado no sistema.";
+            else if(error.code === 'auth/invalid-email') msg.innerText = "Formato de e-mail inválido.";
+            else msg.innerText = "Erro: " + error.message;
         });
     }
 
@@ -478,7 +489,7 @@
         const confirmSenha = document.getElementById('senhaConfirmInput').value;
         const msg = document.getElementById('authMsg');
         
-        msg.style.color = "var(--danger)"; // Garante a cor vermelha para erros
+        msg.style.color = "var(--danger)"; 
         if(!email || senha.length < 6) { msg.innerText = "Email inválido ou senha menor que 6 chars."; return; }
         if(senha !== confirmSenha) { msg.innerText = "Senhas não coincidem."; return; }
         
@@ -493,7 +504,7 @@
         const senha = document.getElementById('senhaInput').value;
         const msg = document.getElementById('authMsg');
         
-        msg.style.color = "var(--danger)"; // Garante a cor vermelha para erros
+        msg.style.color = "var(--danger)"; 
         if(!email || !senha) { msg.innerText = "Preencha os campos."; return; }
         
         document.getElementById('loadingAuth').style.display = 'block'; msg.innerText = "";
@@ -540,7 +551,6 @@
         document.querySelectorAll('.view-section').forEach(s=>s.classList.remove('active')); document.getElementById(`view-${v}`).classList.add('active');
         document.getElementById('pageTitle').innerText = {'dashboard':'Dashboard','operations':'Operações','reports':'Extrato Oficial','settings':'Ajustes'}[v];
         
-        // Fecha menu no mobile ao clicar
         document.getElementById('mainSidebar').classList.remove('open');
         document.getElementById('mobileOverlay').classList.remove('open');
 
