@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>VTR PRO v13.4 • Cloud Mobile</title>
+<title>VTR PRO v13.5 • Cloud Mobile</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -134,7 +134,9 @@
     .report-table tfoot td { border-top: 2px solid var(--glass-edge); padding-top: 16px; }
     
     .form-input { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-edge-dark); color: var(--text-main); padding: 14px; border-radius: 12px; font-family: var(--font); font-weight: 600; margin-bottom: 16px; }
-    .btn-save { background: linear-gradient(135deg, var(--primary), #d97706); border: none; color: #000; padding: 14px 24px; border-radius: 12px; font-weight: 800; cursor: pointer; width: 100%;}
+    
+    .btn-save { background: linear-gradient(135deg, var(--primary), #d97706); border: none; color: #000; padding: 14px 24px; border-radius: 12px; font-weight: 800; cursor: pointer; align-items:center; display:inline-flex;}
+    .btn-export { background: linear-gradient(135deg, #10b981, #059669); border: none; color: #000; padding: 14px 24px; border-radius: 12px; font-weight: 800; cursor: pointer; display: inline-flex; align-items:center;}
 
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; z-index: 2000; opacity: 0; padding: 20px; }
     .modal-overlay.show { display: flex; opacity: 1; }
@@ -144,6 +146,9 @@
 
     .hidden { display: none !important; }
 
+    /* =========================================================================
+       📱 MEDIA QUERIES (MOBILE RESPONSIVENESS CORRIGIDO)
+       ========================================================================= */
     @media (max-width: 900px) {
         #app { flex-direction: column; }
         .sidebar { position: fixed; top: 0; left: 0; height: 100vh; transform: translateX(-100%); width: 280px; z-index: 1000; background: rgba(15, 15, 20, 0.95); }
@@ -155,8 +160,10 @@
         .kpi-grid { grid-template-columns: 1fr; gap: 16px; }
         .card { padding: 20px; }
         .card-val { font-size: 28px; }
-        #view-reports .card > div { flex-direction: column; align-items: stretch; }
-        #view-reports .btn-export, #view-reports .btn-save, #view-reports label { width: 100%; text-align: center; justify-content: center;}
+        
+        /* Ajuste do botão de relatórios para empilhar limpo no celular */
+        .action-buttons { flex-direction: column; width: 100%; }
+        .action-buttons .btn-export, .action-buttons .btn-save, .action-buttons label { width: 100%; justify-content: center; text-align: center; }
     }
 </style>
 </head>
@@ -318,13 +325,15 @@
 
         <div id="view-reports" class="view-section">
             <div class="card" style="margin-bottom: 24px;">
-                <div class="card-label" style="margin-bottom:8px;">Dados e Backup</div>
-                <p style="color:var(--text-muted); font-size:13px; margin-bottom: 20px;">Faça o balanço oficial da sua operação. Seus dados estão salvos na nuvem automaticamente.</p>
-                <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                <div class="card-label" style="margin-bottom:8px;">Central de Dados e Backup</div>
+                <h3 style="margin-bottom:12px; font-size:24px; font-weight:800; letter-spacing:-0.5px;">Gestão de Arquivos</h3>
+                <p style="color:var(--text-muted); font-size:13px; margin-bottom: 24px;">Faça o balanço oficial da sua operação. Seus dados estão salvos na nuvem automaticamente.</p>
+                
+                <div class="action-buttons" style="display:flex; gap:12px; flex-wrap:wrap;">
                     <button class="btn-export" onclick="exportCSV()">📄 Baixar Planilha</button>
-                    <button class="btn-save" style="background:rgba(255,255,255,0.05); color:#fff; border:1px solid var(--glass-edge);" onclick="exportData()">💾 Baixar Backup</button>
-                    <label class="btn-save" style="background:rgba(251, 191, 36, 0.1); color:var(--primary); border:1px solid rgba(251, 191, 36, 0.3); cursor:pointer;">
-                        📂 Restaurar
+                    <button class="btn-save" style="background:rgba(255,255,255,0.05); color:#fff; border:1px solid var(--glass-edge); box-shadow:none;" onclick="exportData()">💾 Baixar Backup Local</button>
+                    <label class="btn-save" style="background:rgba(251, 191, 36, 0.1); color:var(--primary); border:1px solid rgba(251, 191, 36, 0.3); box-shadow:none; cursor:pointer;">
+                        📂 Restaurar Backup
                         <input type="file" id="importFile" accept=".json" class="hidden" onchange="importData(event)">
                     </label>
                 </div>
@@ -386,7 +395,7 @@
     }
 
     // --- LÓGICA DE AUTENTICAÇÃO (FLUXO TRIPLO) ---
-    let authMode = 'login'; // pode ser: 'login', 'register', 'forgot'
+    let authMode = 'login'; 
     let currentUser = null;
 
     function setAuthMode(mode) {
@@ -396,7 +405,6 @@
         const btnAction = document.getElementById('btnAuthAction');
         const title = document.getElementById('authTitle');
         const subtitle = document.getElementById('authSubtitle');
-        const textMsg = document.getElementById('toggleTextMsg');
         const toggleContainer = document.getElementById('authToggleContainer');
         const forgotWrapper = document.getElementById('forgotPasswordWrapper');
         const msg = document.getElementById('authMsg');
@@ -653,8 +661,10 @@
     function closeRanking() { document.getElementById('rankingModal').classList.remove('show'); }
 
     function cloneOp(i) { const b=user.data[currentDate][i]; user.data[currentDate].splice(i+1,0,{d:b.d,r:b.r,e:b.e,s:0,b:0}); saveToCloud(); renderOps(); }
+    
+    // CORREÇÃO: Data voltando ao padrão DD/MM/YYYY
     function renderOps() {
-        const [y,m,d] = currentDate.split('-'); document.getElementById('opsDateDisplay').innerText = `${d}/${m}`;
+        const [y,m,d] = currentDate.split('-'); document.getElementById('opsDateDisplay').innerText = `${d}/${m}/${y}`;
         const list = document.getElementById('opsList'); list.innerHTML = '';
         const ops = user.data[currentDate] || []; let profit=0;
         ops.forEach((o,i) => {
@@ -687,6 +697,7 @@
         if(arr.length===0) { const [y,m] = new Date().toISOString().substring(0,7).split('-'); sel.innerHTML=`<option value="${y}-${m}">${mesesNomes[parseInt(m)-1]} ${y}</option>`; return; }
         arr.forEach(x => { const [y,m]=x.split('-'); sel.innerHTML+=`<option value="${x}">${mesesNomes[parseInt(m)-1]} ${y}</option>`; });
     }
+    
     function renderReports() {
         const tb = document.getElementById('reportTableBody'); const tf = document.getElementById('reportTableFoot');
         const sM = document.getElementById('reportMonthSelect').value; if(!sM) return;
