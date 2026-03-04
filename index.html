@@ -2,8 +2,8 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VTR PRO v13.1 • Cloud SaaS Edition</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>VTR PRO v13.2 • Cloud Mobile</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -50,16 +50,16 @@
     .orb-3 { width: 500px; height: 500px; background: #059669; top: 30%; left: 40%; animation-duration: 40s; opacity: 0.15; }
     @keyframes float { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(60px, 40px) scale(1.1); } }
 
-    /* --- TELA DE LOGIN PREMIUM --- */
+    /* --- TELA DE LOGIN --- */
     #loginScreen {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(5,5,7,0.6); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+        background: rgba(5,5,7,0.8); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
         display: flex; align-items: center; justify-content: center; z-index: 9999;
-        transition: opacity 0.5s ease;
+        transition: opacity 0.5s ease; padding: 20px;
     }
     .auth-card {
-        background: var(--glass-card); border-top: 1px solid var(--glass-edge); border-left: 1px solid var(--glass-edge); border-right: 1px solid var(--glass-edge-dark); border-bottom: 1px solid var(--glass-edge-dark);
-        padding: 48px; border-radius: 24px; box-shadow: 0 30px 60px rgba(0,0,0,0.5); width: 100%; max-width: 420px; text-align: center;
+        background: var(--glass-card); border-top: 1px solid var(--glass-edge); border-left: 1px solid var(--glass-edge); 
+        padding: 40px 30px; border-radius: 24px; box-shadow: 0 30px 60px rgba(0,0,0,0.5); width: 100%; max-width: 420px; text-align: center;
     }
     .auth-input {
         width: 100%; background: rgba(0,0,0,0.4); border: 1px solid transparent; border-bottom: 1px solid rgba(255,255,255,0.1);
@@ -69,99 +69,106 @@
     .auth-btn { width: 100%; padding: 16px; border-radius: 12px; font-weight: 800; font-size: 15px; cursor: pointer; transition: 0.3s; border: none; font-family: var(--font); }
     .btn-login { background: linear-gradient(135deg, var(--primary), #d97706); color: #000; box-shadow: 0 10px 20px var(--primary-glow); margin-bottom: 16px; margin-top: 8px;}
     .btn-login:hover { transform: translateY(-2px); box-shadow: 0 15px 30px var(--primary-glow); }
-    
     .auth-toggle { font-size: 13px; color: var(--text-muted); margin-top: 16px; font-weight: 500; }
     .auth-toggle span { color: var(--primary); font-weight: 800; cursor: pointer; transition: 0.2s; }
-    .auth-toggle span:hover { filter: brightness(1.2); text-decoration: underline; }
-
     .loader { border: 4px solid rgba(255,255,255,0.1); border-top: 4px solid var(--primary); border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; display: none; margin: 0 auto 16px auto; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
     /* --- LAYOUT DO APP --- */
-    #app { display: none; height: 100%; opacity: 0; pointer-events: none; transition: opacity 0.5s; } 
+    #app { display: none; height: 100%; opacity: 0; pointer-events: none; transition: opacity 0.5s; flex-direction: row; } 
     #app.visible { display: flex; opacity: 1; pointer-events: all; }
 
-    .sidebar { width: var(--sidebar-width); background: var(--glass-panel); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border-right: 1px solid var(--glass-edge-dark); display: flex; flex-direction: column; padding: 28px 24px; justify-content: space-between; box-shadow: 10px 0 30px rgba(0,0,0,0.2); z-index: 10; }
+    /* SIDEBAR (DESKTOP) */
+    .sidebar { width: var(--sidebar-width); background: var(--glass-panel); backdrop-filter: var(--glass-blur); border-right: 1px solid var(--glass-edge-dark); display: flex; flex-direction: column; padding: 28px 24px; justify-content: space-between; box-shadow: 10px 0 30px rgba(0,0,0,0.2); z-index: 100; transition: transform 0.3s ease; }
     .logo-icon { width: 44px; height: 44px; background: linear-gradient(135deg, var(--primary), #d97706); border-radius: 12px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:22px; color:#000; box-shadow: 0 4px 20px rgba(251, 191, 36, 0.25);}
-    .nav-item { display: flex; align-items: center; gap: 14px; padding: 14px 18px; color: var(--text-muted); border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); border: 1px solid transparent; position: relative; overflow: hidden;}
+    .nav-item { display: flex; align-items: center; gap: 14px; padding: 14px 18px; color: var(--text-muted); border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 14px; transition: 0.3s; margin-bottom: 4px; }
     .nav-item:hover { color: var(--text-main); background: rgba(255,255,255,0.03); }
-    .nav-item.active { color: var(--primary); background: linear-gradient(90deg, rgba(251, 191, 36, 0.1) 0%, transparent 100%); border-color: rgba(251, 191, 36, 0.2); }
-    .nav-item.active::before { content: ''; position: absolute; left: 0; top: 10%; height: 80%; width: 4px; background: var(--primary); border-radius: 0 4px 4px 0; box-shadow: 0 0 10px var(--primary); }
-
-    .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
-    .top-header { height: var(--header-height); display: flex; align-items: center; justify-content: space-between; padding: 0 40px; background: linear-gradient(180deg, rgba(15,15,20,0.8) 0%, rgba(15,15,20,0) 100%); z-index: 5; }
-    .view-section { padding: 20px 40px 60px 40px; overflow-y: auto; height: calc(100vh - var(--header-height)); display: none; animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
-    .view-section.active { display: block; }
-    @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-
-    /* --- PREMIUM CARDS --- */
-    .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 24px; }
-    .card { background: var(--glass-card); border-top: 1px solid var(--glass-edge); border-left: 1px solid var(--glass-edge); border-right: 1px solid var(--glass-edge-dark); border-bottom: 1px solid var(--glass-edge-dark); padding: 28px; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); transition: transform 0.4s, border-color 0.4s; }
-    .card:hover { transform: translateY(-4px); border-top-color: rgba(255,255,255,0.2); border-left-color: rgba(255,255,255,0.2); }
-    .aurora-core-card { background: linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(0, 0, 0, 0.4)); border-top: 1px solid rgba(251, 191, 36, 0.4); border-left: 1px solid rgba(251, 191, 36, 0.2); }
-    .aurora-core-card.profit { box-shadow: 0 20px 40px rgba(0,0,0,0.4), inset 0 0 40px rgba(251, 191, 36, 0.1); }
-    .aurora-core-card.loss { border-top-color: rgba(244, 63, 94, 0.4); border-left-color: rgba(244, 63, 94, 0.2); background: linear-gradient(135deg, rgba(244, 63, 94, 0.15), rgba(0, 0, 0, 0.4)); box-shadow: 0 20px 40px rgba(0,0,0,0.4), inset 0 0 40px rgba(244, 63, 94, 0.1); }
-    .card-label { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; }
-    .card-val { font-size: 32px; font-weight: 800; color: var(--text-main); letter-spacing: -1px; line-height: 1.1; }
-
-    .clickable-card { cursor: pointer; position: relative; overflow: hidden;}
-    .clickable-card::after { content: 'Clique para ver o Ranking'; position: absolute; bottom: 10px; right: 15px; font-size: 10px; color: var(--primary); opacity: 0; transition: 0.3s; font-weight: 700; }
-    .clickable-card:hover::after { opacity: 1; }
-
-    /* --- OPERATIONS PREMIUM LAYOUT --- */
-    .ops-header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-    .date-nav { display: flex; align-items: center; gap: 20px; }
-    .nav-arrow { width: 40px; height: 40px; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-edge); border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted); transition: 0.3s; }
-    .nav-arrow:hover { background: rgba(255,255,255,0.1); color: var(--text-main); transform: scale(1.05); }
-
-    .ops-meta-container { margin-bottom: 32px; background: rgba(0,0,0,0.3); padding: 20px 24px; border-radius: 20px; border-top: 1px solid var(--glass-edge); border-bottom: 1px solid var(--glass-edge-dark); display: flex; flex-direction: column; gap: 12px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5); }
-    .ops-meta-header { display: flex; justify-content: space-between; font-size: 13px; font-weight: 800; color: var(--text-muted); }
-    .ops-progress-track { width: 100%; height: 8px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden; position: relative; }
-    .ops-progress-fill { height: 100%; background: linear-gradient(90deg, #d97706, var(--primary)); width: 0%; border-radius: 4px; box-shadow: 0 0 20px var(--primary); transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
-    .ops-progress-fill.hit { background: linear-gradient(90deg, #059669, var(--success)); box-shadow: 0 0 20px var(--success); }
-
-    .op-list-header { display: grid; grid-template-columns: 30px repeat(5, 1fr) 1.5fr 70px; gap: 16px; padding: 0 24px; margin-bottom: 12px; font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
-    .op-row-card { background: var(--glass-card); border-top: 1px solid var(--glass-edge); border-bottom: 1px solid var(--glass-edge-dark); border-radius: 16px; padding: 16px 24px; margin-bottom: 16px; display: grid; grid-template-columns: 30px repeat(5, 1fr) 1.5fr 70px; gap: 16px; align-items: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); transition: 0.3s;}
-    .op-row-card:hover { transform: translateY(-2px); border-top-color: rgba(255,255,255,0.15); box-shadow: 0 15px 30px rgba(0,0,0,0.3); background: linear-gradient(135deg, rgba(35, 35, 45, 0.6), rgba(20, 20, 25, 0.4));}
-    
-    .op-input { width: 100%; background: rgba(0,0,0,0.4); border: 1px solid transparent; border-bottom: 1px solid rgba(255,255,255,0.05); border-radius: 10px; padding: 12px; color: var(--text-main); font-weight: 700; text-align: center; transition: 0.3s; font-family: var(--font); font-size: 14px; }
-    .op-input::placeholder { color: rgba(255,255,255,0.15); font-weight: 500; }
-    .op-input:hover { background: rgba(0,0,0,0.6); border-bottom-color: rgba(255,255,255,0.1); }
-    .cost-in:focus { border-bottom-color: var(--danger); background: rgba(244, 63, 94, 0.05); outline: none; }
-    .gain-in:focus { border-bottom-color: var(--success); background: rgba(16, 185, 129, 0.05); outline: none; }
-
-    .btn-add-large { width: 100%; padding: 20px; background: rgba(251, 191, 36, 0.03); border: 1px dashed rgba(251, 191, 36, 0.3); color: var(--primary); font-weight: 800; letter-spacing: 1px; border-radius: 16px; cursor: pointer; transition: 0.3s; margin-top: 16px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-    .btn-add-large:hover { background: rgba(251, 191, 36, 0.1); border-color: var(--primary); box-shadow: 0 10px 30px var(--primary-glow); transform: translateY(-2px); }
-
-    /* --- REPORTS & SETTINGS --- */
-    .report-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    .report-table th { text-align: left; font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 800; padding: 12px 16px; border-bottom: 1px solid var(--glass-edge-dark); }
-    .report-table td { padding: 16px; border-bottom: 1px solid rgba(255,255,255,0.02); font-size: 14px; font-weight: 500; }
-    .report-table tfoot td { border-top: 2px solid var(--glass-edge); border-bottom: none; padding-top: 24px; }
-
-    .btn-export { background: linear-gradient(135deg, #10b981, #059669); color: #000; font-weight: 800; border: none; padding: 14px 24px; border-radius: 12px; cursor: pointer; display: inline-flex; gap: 8px; transition: 0.3s; box-shadow: 0 4px 15px var(--success-glow); align-items:center;}
-    .btn-export:hover { transform: translateY(-2px); box-shadow: 0 8px 25px var(--success-glow); }
-
-    .form-input { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-edge-dark); border-bottom: 1px solid var(--glass-edge); color: var(--text-main); padding: 14px 16px; border-radius: 12px; font-family: var(--font); font-weight: 600; font-size: 15px; transition: 0.3s; }
-    .form-input:focus { border-bottom-color: var(--primary); background: rgba(0,0,0,0.5); }
-    
-    .btn-save { background: linear-gradient(135deg, #fbbf24, #d97706); border: none; color: #000; padding: 14px 28px; border-radius: 12px; font-weight: 800; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px var(--primary-glow); letter-spacing: 0.5px; align-items:center; display:inline-flex;}
-    .btn-save:hover { transform: translateY(-2px); box-shadow: 0 8px 25px var(--primary-glow); }
-
+    .nav-item.active { color: var(--primary); background: linear-gradient(90deg, rgba(251, 191, 36, 0.1) 0%, transparent 100%); border-color: rgba(251, 191, 36, 0.2); border-left: 4px solid var(--primary);}
     .btn-logout { background: rgba(244, 63, 94, 0.1); color: var(--danger); border: 1px solid rgba(244, 63, 94, 0.3); padding: 12px 16px; border-radius: 12px; font-weight: 700; font-size: 13px; cursor: pointer; transition: 0.3s; width: 100%; font-family: var(--font);}
-    .btn-logout:hover { background: rgba(244, 63, 94, 0.2); box-shadow: 0 0 15px var(--danger-glow); }
 
-    /* --- MODAL RANKING E TOOLTIP --- */
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; z-index: 2000; opacity: 0; transition: opacity 0.3s; }
-    .modal-overlay.show { display: flex; opacity: 1; }
-    .modal-card { background: var(--glass-card); border-top: 1px solid var(--glass-edge); border-left: 1px solid var(--glass-edge); padding: 30px; border-radius: 24px; width: 100%; max-width: 450px; max-height: 80vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0,0,0,0.5); position: relative; }
-    .modal-close { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.05); border: none; color: var(--text-muted); width: 32px; height: 32px; border-radius: 50%; font-size: 16px; cursor: pointer; transition: 0.2s; display:flex; align-items:center; justify-content:center; }
-    .modal-close:hover { background: rgba(244, 63, 94, 0.2); color: var(--danger); }
-    .ranking-item { display: flex; justify-content: space-between; padding: 16px 0; border-bottom: 1px solid rgba(255,255,255,0.05); align-items:center;}
+    /* Overlay do Menu Mobile */
+    .mobile-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 90; display: none; backdrop-filter: blur(5px); opacity: 0; transition: opacity 0.3s; }
+
+    /* MOBILE HEADER */
+    .mobile-header { display: none; align-items: center; justify-content: space-between; padding: 16px 24px; background: var(--glass-panel); border-bottom: 1px solid var(--glass-edge-dark); z-index: 80; backdrop-filter: var(--glass-blur); }
+    .hamburger { background: transparent; border: none; color: var(--text-main); font-size: 24px; cursor: pointer; }
+
+    .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; width: 100%; }
+    .top-header { height: var(--header-height); display: flex; align-items: center; justify-content: space-between; padding: 0 40px; background: linear-gradient(180deg, rgba(15,15,20,0.8) 0%, rgba(15,15,20,0) 100%); z-index: 5; }
+    .view-section { padding: 20px 40px 60px 40px; overflow-y: auto; height: 100%; display: none; animation: slideUp 0.4s ease; }
+    .view-section.active { display: block; }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* --- CARDS & GRIDS --- */
+    .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 24px; }
+    .card { background: var(--glass-card); border-top: 1px solid var(--glass-edge); border-left: 1px solid var(--glass-edge); border-right: 1px solid var(--glass-edge-dark); border-bottom: 1px solid var(--glass-edge-dark); padding: 28px; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); transition: transform 0.4s; }
+    .aurora-core-card { background: linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(0, 0, 0, 0.4)); border-top-color: rgba(251, 191, 36, 0.4); }
+    .card-label { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+    .card-val { font-size: 32px; font-weight: 800; color: var(--text-main); letter-spacing: -1px; }
+    .clickable-card { cursor: pointer; position: relative;}
+
+    /* --- OPERATIONS (RESPONSIVE TABLE) --- */
+    .ops-header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
+    .date-nav { display: flex; align-items: center; gap: 16px; }
+    .nav-arrow { width: 40px; height: 40px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-edge); border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff; }
     
-    .chart-tooltip { position: absolute; background: rgba(15,15,20,0.9); border: 1px solid var(--glass-edge); padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; color: #fff; pointer-events: none; opacity: 0; transition: opacity 0.2s; transform: translate(-50%, 0); z-index: 100; box-shadow: 0 10px 20px rgba(0,0,0,0.5); backdrop-filter: blur(10px); text-align: center; }
+    .ops-meta-container { margin-bottom: 32px; background: rgba(0,0,0,0.3); padding: 20px; border-radius: 20px; border-top: 1px solid var(--glass-edge); }
+    .ops-progress-track { width: 100%; height: 8px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden; margin-top: 12px;}
+    .ops-progress-fill { height: 100%; background: linear-gradient(90deg, #d97706, var(--primary)); width: 0%; border-radius: 4px; transition: width 0.6s ease; }
+
+    /* O Segredo do Mobile: Scroll Horizontal Suave na Tabela */
+    .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 10px; margin-bottom: 16px; }
+    .table-inner { min-width: 900px; /* Garante que a tabela não esmague no celular */ }
+
+    .op-list-header { display: grid; grid-template-columns: 30px repeat(5, 1fr) 1.5fr 70px; gap: 12px; padding: 0 16px; margin-bottom: 12px; font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; }
+    .op-row-card { background: var(--glass-card); border-top: 1px solid var(--glass-edge); border-radius: 16px; padding: 12px 16px; margin-bottom: 12px; display: grid; grid-template-columns: 30px repeat(5, 1fr) 1.5fr 70px; gap: 12px; align-items: center; }
+    
+    .op-input { width: 100%; background: rgba(0,0,0,0.4); border: 1px solid transparent; border-bottom: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 10px; color: var(--text-main); font-weight: 700; text-align: center; font-size: 14px; }
+    .op-input:focus { border-bottom-color: var(--primary); background: rgba(0,0,0,0.6); outline: none;}
+
+    .btn-add-large { width: 100%; padding: 20px; background: rgba(251, 191, 36, 0.05); border: 1px dashed rgba(251, 191, 36, 0.3); color: var(--primary); font-weight: 800; border-radius: 16px; cursor: pointer; transition: 0.3s; }
+    
+    /* --- REPORTS & MODALS --- */
+    .report-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    .report-table th, .report-table td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px;}
+    .report-table tfoot td { border-top: 2px solid var(--glass-edge); padding-top: 16px; }
+    
+    .form-input { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-edge-dark); color: var(--text-main); padding: 14px; border-radius: 12px; font-family: var(--font); font-weight: 600; margin-bottom: 16px; }
+    .btn-save { background: linear-gradient(135deg, var(--primary), #d97706); border: none; color: #000; padding: 14px 24px; border-radius: 12px; font-weight: 800; cursor: pointer; width: 100%;}
+
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; z-index: 2000; opacity: 0; padding: 20px; }
+    .modal-overlay.show { display: flex; opacity: 1; }
+    .modal-card { background: var(--glass-card); border: 1px solid var(--glass-edge); padding: 24px; border-radius: 20px; width: 100%; max-width: 400px; max-height: 80vh; overflow-y: auto; position: relative; }
+    .modal-close { position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.1); border: none; color: #fff; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; }
+    .chart-tooltip { position: absolute; background: rgba(0,0,0,0.9); padding: 8px; border-radius: 8px; font-size: 12px; color: #fff; pointer-events: none; opacity: 0; z-index: 100; border: 1px solid var(--glass-edge); }
 
     .hidden { display: none !important; }
+
+    /* =========================================================================
+       📱 MEDIA QUERIES (MOBILE RESPONSIVENESS)
+       ========================================================================= */
+    @media (max-width: 900px) {
+        #app { flex-direction: column; }
+        
+        /* Sidebar vira um Menu Deslizante (Off-canvas) */
+        .sidebar { position: fixed; top: 0; left: 0; height: 100vh; transform: translateX(-100%); width: 280px; z-index: 1000; background: rgba(15, 15, 20, 0.95); }
+        .sidebar.open { transform: translateX(0); }
+        
+        /* Mostra overlay e header mobile */
+        .mobile-overlay.open { display: block; opacity: 1; }
+        .mobile-header { display: flex; }
+        .top-header { display: none; }
+        
+        /* Ajuste de espaçamentos gerais */
+        .view-section { padding: 20px 16px 80px 16px; }
+        .kpi-grid { grid-template-columns: 1fr; gap: 16px; }
+        .card { padding: 20px; }
+        .card-val { font-size: 28px; }
+        
+        /* Aba Relatórios (Botões empilhados) */
+        #view-reports .card > div { flex-direction: column; align-items: stretch; }
+        #view-reports .btn-export, #view-reports .btn-save, #view-reports label { width: 100%; text-align: center; justify-content: center;}
+    }
 </style>
 </head>
 <body>
@@ -170,11 +177,13 @@
     <div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div>
 </div>
 
+<div class="mobile-overlay" id="mobileOverlay" onclick="toggleMenu()"></div>
+
 <div id="loginScreen">
     <div class="auth-card">
-        <div style="display:flex; justify-content:center; margin-bottom:24px;"><div class="logo-icon" style="width:64px; height:64px; font-size:28px;">V</div></div>
-        <h2 id="authTitle" style="margin-bottom:8px; font-weight:800; font-size:24px; letter-spacing:-0.5px;">Acesso ao Sistema</h2>
-        <p id="authSubtitle" style="color:var(--text-muted); font-size:14px; margin-bottom:32px;">Faça login para gerenciar suas operações.</p>
+        <div style="display:flex; justify-content:center; margin-bottom:20px;"><div class="logo-icon" style="width:56px; height:56px; font-size:24px;">V</div></div>
+        <h2 id="authTitle" style="margin-bottom:8px; font-weight:800; font-size:22px;">Acesso ao Sistema</h2>
+        <p id="authSubtitle" style="color:var(--text-muted); font-size:13px; margin-bottom:24px;">Gerencie suas operações na nuvem.</p>
         
         <div id="loadingAuth" class="loader"></div>
 
@@ -183,11 +192,10 @@
         <input type="password" id="senhaConfirmInput" class="auth-input hidden" placeholder="Confirme sua Senha">
         
         <button id="btnAuthAction" class="auth-btn btn-login" onclick="handleAuth()">Entrar no Sistema</button>
-        
-        <div id="authMsg" style="color:var(--danger); font-size:13px; font-weight:600; margin-top:8px;"></div>
+        <div id="authMsg" style="color:var(--danger); font-size:12px; font-weight:600; margin-top:8px;"></div>
 
         <div class="auth-toggle">
-            <span id="toggleTextMsg" style="color: var(--text-muted); font-weight:500;">Não possui uma conta?</span> 
+            <span id="toggleTextMsg" style="color: var(--text-muted);">Não possui uma conta?</span> 
             <span id="toggleTextLink" onclick="toggleAuthMode()">Criar Agora</span>
         </div>
     </div>
@@ -196,18 +204,27 @@
 <div class="modal-overlay" id="rankingModal">
     <div class="modal-card">
         <button class="modal-close" onclick="closeRanking()">✕</button>
-        <h2 style="font-size:20px; font-weight:800; margin-bottom:8px; letter-spacing:-0.5px;">Ranking de Operações</h2>
-        <p id="rankingTitle" style="color:var(--primary); font-size:13px; font-weight:700; text-transform:uppercase; margin-bottom:24px;">MÊS / ANO</p>
+        <h2 style="font-size:18px; font-weight:800; margin-bottom:4px;">Ranking de Operações</h2>
+        <p id="rankingTitle" style="color:var(--primary); font-size:12px; font-weight:700; margin-bottom:20px;">MÊS / ANO</p>
         <div id="rankingList"></div>
     </div>
 </div>
 
 <div id="app">
-    <div class="sidebar">
+    
+    <div class="mobile-header">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="logo-icon" style="width:36px; height:36px; font-size:16px;">V</div>
+            <div style="font-weight: 800; font-size:16px; letter-spacing:-0.5px;">VTR PRO</div>
+        </div>
+        <button class="hamburger" onclick="toggleMenu()">☰</button>
+    </div>
+
+    <div class="sidebar" id="mainSidebar">
         <div>
-            <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 48px;">
+            <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 40px;" class="hidden-mobile">
                 <div class="logo-icon">V</div>
-                <div><div style="font-size:18px; font-weight:800; letter-spacing:-0.5px;">VTR PRO</div><div style="font-size:11px; color:var(--success); font-weight:800; letter-spacing:1px;">● SAAS ONLINE</div></div>
+                <div><div style="font-size:18px; font-weight:800;">VTR PRO</div><div style="font-size:10px; color:var(--success); font-weight:800;">CLOUD ONLINE</div></div>
             </div>
             <nav style="display: flex; flex-direction: column; gap: 6px;">
                 <div class="nav-item active" onclick="navTo('dashboard', this)">Dashboard Geral</div>
@@ -217,11 +234,11 @@
             </nav>
         </div>
         <div>
-            <div style="background: rgba(0,0,0,0.3); padding: 14px; border-radius: 16px; display: flex; align-items: center; gap: 14px; border: 1px solid var(--glass-edge-dark); margin-bottom: 16px;">
-                <div style="width: 40px; height: 40px; border-radius: 10px; background: #fff; color: #000; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size:16px;">U</div>
+            <div style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 16px; display: flex; align-items: center; gap: 12px; border: 1px solid var(--glass-edge-dark); margin-bottom: 16px;">
+                <div style="width: 36px; height: 36px; border-radius: 8px; background: #fff; color: #000; display: flex; align-items: center; justify-content: center; font-weight: 800;">U</div>
                 <div style="overflow: hidden;">
-                    <h4 id="userNameDisplay" style="font-weight:700; font-size:14px; margin:0; color:var(--text-main); white-space: nowrap; text-overflow: ellipsis;">Usuário</h4>
-                    <p id="userEmailDisplay" style="font-size:11px; color:var(--text-muted); margin:0; margin-top:2px; white-space: nowrap; text-overflow: ellipsis;">email@teste.com</p>
+                    <h4 id="userNameDisplay" style="font-weight:700; font-size:13px; margin:0; color:var(--text-main); white-space: nowrap;">Usuário</h4>
+                    <p id="userEmailDisplay" style="font-size:10px; color:var(--text-muted); margin:0;">email@teste.com</p>
                 </div>
             </div>
             <button class="btn-logout" onclick="fazerLogout()">Sair do Sistema</button>
@@ -244,36 +261,33 @@
                     <div class="card-val" id="kpiMonth">R$ 0.00</div>
                 </div>
                 <div class="card">
-                    <div class="card-label">Objetivo de Faturamento (Dia)</div>
+                    <div class="card-label">Objetivo de Faturamento</div>
                     <div class="card-val" id="kpiMeta">R$ 0.00</div>
                 </div>
             </div>
 
             <div class="kpi-grid">
                 <div class="card">
-                    <div class="card-label" id="label7d">Acumulado (Últimos 7 Dias)</div>
-                    <div class="card-val" id="kpi7d" style="font-size:28px;">R$ 0.00</div>
+                    <div class="card-label" id="label7d">Acumulado (7 Dias)</div>
+                    <div class="card-val" id="kpi7d" style="font-size:24px;">R$ 0.00</div>
                 </div>
                 <div class="card">
-                    <div class="card-label" id="label15d">Acumulado (Últimos 15 Dias)</div>
-                    <div class="card-val" id="kpi15d" style="font-size:28px;">R$ 0.00</div>
+                    <div class="card-label" id="label15d">Acumulado (15 Dias)</div>
+                    <div class="card-val" id="kpi15d" style="font-size:24px;">R$ 0.00</div>
                 </div>
                 <div class="card">
-                    <div class="card-label" id="label30d">Acumulado (Últimos 30 Dias)</div>
-                    <div class="card-val" id="kpi30d" style="font-size:28px;">R$ 0.00</div>
+                    <div class="card-label" id="label30d">Acumulado (30 Dias)</div>
+                    <div class="card-val" id="kpi30d" style="font-size:24px;">R$ 0.00</div>
                 </div>
             </div>
 
-            <div class="card" style="height: 380px; display:flex; flex-direction:column; margin-bottom:24px; padding-bottom:10px;">
-                <div class="card-label" id="labelEq" style="margin-bottom:16px;">Fluxo de Caixa Diário (Mês Atual)</div>
+            <div class="card" style="height: 300px; display:flex; flex-direction:column; margin-bottom:24px; padding-bottom:10px;">
+                <div class="card-label" id="labelEq" style="margin-bottom:16px;">Fluxo de Caixa Diário</div>
                 <div id="equalizerChart" style="flex: 1; position: relative; width: 100%;"></div>
                 <div id="chartTooltip" class="chart-tooltip"></div>
             </div>
             
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px; margin-top: 10px;">
-                <h3 style="font-size: 16px; font-weight: 700; color: var(--text-main); letter-spacing: 0.5px; text-transform: uppercase;">Histórico de Desempenho Mensal</h3>
-            </div>
-
+            <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 16px; margin-top: 10px; color: var(--text-muted); text-transform:uppercase;">Histórico Mensal</h3>
             <div class="kpi-grid" id="monthlyAnalyticsGrid"></div>
         </div>
 
@@ -281,59 +295,57 @@
             <div class="ops-header-bar">
                 <div class="date-nav">
                     <div class="nav-arrow" onclick="changeDate(-1)">❮</div>
-                    <div class="current-date" id="opsDateDisplay" style="font-size: 28px; font-weight: 800; letter-spacing:-1px;">Hoje</div>
+                    <div class="current-date" id="opsDateDisplay" style="font-size: 20px; font-weight: 800;">Hoje</div>
                     <div class="nav-arrow" onclick="changeDate(1)">❯</div>
                 </div>
                 <div style="text-align: right;">
-                    <div style="font-size:11px; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:4px;">Saldo Consolidado</div>
-                    <div style="font-size:32px; font-weight:800; letter-spacing:-1px;" id="opsDayTotal">R$ 0.00</div>
+                    <div style="font-size:10px; font-weight:800; color:var(--text-muted); text-transform:uppercase; margin-bottom:2px;">Saldo Consolidado</div>
+                    <div style="font-size:24px; font-weight:800;" id="opsDayTotal">R$ 0.00</div>
                 </div>
             </div>
 
             <div class="ops-meta-container">
-                <div class="ops-meta-header">
-                    <span>STATUS DA META DIÁRIA</span>
+                <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:800; color:var(--text-muted);">
+                    <span>STATUS DA META</span>
                     <span id="opsMetaVals" style="color:var(--text-main);">R$ 0 / R$ 1000</span>
                 </div>
-                <div class="ops-progress-track">
-                    <div id="opsProgressBar" class="ops-progress-fill"></div>
-                </div>
+                <div class="ops-progress-track"><div id="opsProgressBar" class="ops-progress-fill"></div></div>
             </div>
 
-            <div id="opsContainer">
-                <div class="op-list-header">
-                    <div>#</div><div>Depósito</div><div>Re-Dep</div><div style="color:var(--danger)">Extra</div><div>Saque</div><div>Baú (x10)</div><div style="text-align:right">Lucro Líquido</div><div style="text-align:center;">Ação</div>
+            <div class="table-responsive">
+                <div class="table-inner">
+                    <div class="op-list-header">
+                        <div>#</div><div>Depósito</div><div>Re-Dep</div><div style="color:var(--danger)">Extra</div><div>Saque</div><div>Baú (x10)</div><div style="text-align:right">Lucro Líquido</div><div style="text-align:center;">Ação</div>
+                    </div>
+                    <div id="opsList"></div>
                 </div>
-                <div id="opsList"></div>
-                <button class="btn-add-large" onclick="addOp()">+ INSERIR NOVA OPERAÇÃO</button>
             </div>
+            <button class="btn-add-large" onclick="addOp()">+ INSERIR NOVA OPERAÇÃO</button>
         </div>
 
         <div id="view-reports" class="view-section">
-            <div style="display: grid; grid-template-columns: 1fr; gap: 24px;">
-                <div class="card" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
-                    <div>
-                        <div class="card-label" style="margin-bottom:8px;">Central de Dados e Backup</div>
-                        <p style="color:var(--text-muted); font-size:13px; margin:0;">Faça o balanço oficial da sua operação. Os dados são salvos na nuvem automaticamente.</p>
-                    </div>
-                    <div style="display:flex; gap:12px; flex-wrap:wrap;">
-                        <button class="btn-export" onclick="exportCSV()">📄 Baixar Planilha (CSV)</button>
-                        <button class="btn-save" style="background:rgba(255,255,255,0.05); color:#fff; box-shadow:none; border:1px solid var(--glass-edge);" onclick="exportData()">💾 Baixar Backup Local</button>
-                        <label class="btn-save" style="background:rgba(251, 191, 36, 0.1); color:var(--primary); box-shadow:none; border:1px solid rgba(251, 191, 36, 0.3); cursor:pointer;">
-                            📂 Restaurar Backup
-                            <input type="file" id="importFile" accept=".json" class="hidden" onchange="importData(event)">
-                        </label>
-                    </div>
+            <div class="card" style="margin-bottom: 24px;">
+                <div class="card-label" style="margin-bottom:8px;">Dados e Backup</div>
+                <p style="color:var(--text-muted); font-size:13px; margin-bottom: 20px;">Faça o balanço oficial da sua operação. Seus dados estão salvos na nuvem automaticamente.</p>
+                <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                    <button class="btn-export" onclick="exportCSV()">📄 Baixar Planilha</button>
+                    <button class="btn-save" style="background:rgba(255,255,255,0.05); color:#fff; border:1px solid var(--glass-edge);" onclick="exportData()">💾 Baixar Backup</button>
+                    <label class="btn-save" style="background:rgba(251, 191, 36, 0.1); color:var(--primary); border:1px solid rgba(251, 191, 36, 0.3); cursor:pointer;">
+                        📂 Restaurar
+                        <input type="file" id="importFile" accept=".json" class="hidden" onchange="importData(event)">
+                    </label>
                 </div>
+            </div>
 
-                <div class="card">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; border-bottom: 1px solid var(--glass-edge-dark); padding-bottom: 16px;">
-                        <div class="card-label" style="margin-bottom:0; font-size:16px; color:var(--text-main);">Extrato Oficial do Mês</div>
-                        <select id="reportMonthSelect" class="form-input" style="width:auto; padding:8px 16px; background:rgba(0,0,0,0.6);" onchange="renderReports()"></select>
-                    </div>
-                    
-                    <table class="report-table">
-                        <thead><tr><th>Data (Dia)</th><th>Total Investido</th><th>Total Retornado</th><th>Lucro Líquido</th></tr></thead>
+            <div class="card">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; border-bottom: 1px solid var(--glass-edge-dark); padding-bottom: 12px; flex-wrap:wrap; gap:12px;">
+                    <div class="card-label" style="margin:0; font-size:14px; color:var(--text-main);">Extrato Oficial</div>
+                    <select id="reportMonthSelect" class="form-input" style="width:auto; padding:6px 12px; background:rgba(0,0,0,0.6); margin:0;" onchange="renderReports()"></select>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="report-table" style="min-width: 600px;">
+                        <thead><tr><th>Data</th><th>Investido</th><th>Retornado</th><th>Lucro Líquido</th></tr></thead>
                         <tbody id="reportTableBody"></tbody>
                         <tfoot id="reportTableFoot"></tfoot>
                     </table>
@@ -343,16 +355,14 @@
 
         <div id="view-settings" class="view-section">
             <div class="card" style="max-width:500px;">
-                <h3 style="margin-bottom:32px; font-size:24px; font-weight:800; letter-spacing:-0.5px;">Ajustes de Conta</h3>
-                <div style="margin-bottom:24px;">
-                    <label style="display:block; font-size:13px; font-weight:700; margin-bottom:10px; color:var(--text-muted); letter-spacing:0.5px;">NOME DO OPERADOR</label>
-                    <input type="text" id="setUserName" class="form-input" placeholder="Ex: João Silva">
-                </div>
-                <div style="margin-bottom:40px;">
-                    <label style="display:block; font-size:13px; font-weight:700; margin-bottom:10px; color:var(--text-muted); letter-spacing:0.5px;">META DIÁRIA (R$)</label>
-                    <input type="number" id="setMeta" class="form-input" placeholder="Ex: 1000">
-                </div>
-                <button class="btn-save" style="width:100%; font-size:15px; justify-content:center;" onclick="saveSettings()">Salvar na Nuvem</button>
+                <h3 style="margin-bottom:24px; font-size:20px; font-weight:800;">Ajustes de Conta</h3>
+                <label style="display:block; font-size:11px; font-weight:700; margin-bottom:8px; color:var(--text-muted);">NOME DO OPERADOR</label>
+                <input type="text" id="setUserName" class="form-input" placeholder="Ex: João">
+                
+                <label style="display:block; font-size:11px; font-weight:700; margin-bottom:8px; color:var(--text-muted);">META DIÁRIA (R$)</label>
+                <input type="number" id="setMeta" class="form-input" placeholder="Ex: 1000">
+                
+                <button class="btn-save" style="width:100%; justify-content:center;" onclick="saveSettings()">Salvar na Nuvem</button>
             </div>
         </div>
     </div>
@@ -372,21 +382,22 @@
         measurementId: "G-EDGNXGCSC8"
     };
 
-    if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-    }
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    // =========================================================================
-    // LÓGICA DE AUTENTICAÇÃO (LOGIN / REGISTRO COM UX MELHORADA)
-    // =========================================================================
+    // --- LÓGICA DE MOBILE MENU ---
+    function toggleMenu() {
+        document.getElementById('mainSidebar').classList.toggle('open');
+        document.getElementById('mobileOverlay').classList.toggle('open');
+    }
+
+    // --- LÓGICA DE AUTENTICAÇÃO ---
     let isRegisterMode = false;
     let currentUser = null;
 
     function toggleAuthMode() {
         isRegisterMode = !isRegisterMode;
-        
         const confirmInput = document.getElementById('senhaConfirmInput');
         const btnAction = document.getElementById('btnAuthAction');
         const title = document.getElementById('authTitle');
@@ -396,12 +407,11 @@
         const msg = document.getElementById('authMsg');
         
         msg.innerText = ""; 
-
         if(isRegisterMode) {
             confirmInput.classList.remove('hidden');
             btnAction.innerText = 'Criar Minha Conta';
             title.innerText = 'Nova Conta';
-            subtitle.innerText = 'Preencha os dados abaixo para se cadastrar.';
+            subtitle.innerText = 'Preencha os dados para se cadastrar.';
             textMsg.innerText = 'Já possui uma conta?';
             textLink.innerText = 'Fazer Login';
         } else {
@@ -415,8 +425,7 @@
     }
 
     function handleAuth() {
-        if(isRegisterMode) criarConta();
-        else fazerLogin();
+        if(isRegisterMode) criarConta(); else fazerLogin();
     }
 
     auth.onAuthStateChanged(firebaseUser => {
@@ -426,7 +435,6 @@
             setTimeout(() => document.getElementById('loginScreen').style.display = 'none', 500);
             document.getElementById('app').classList.add('visible');
             document.getElementById('userEmailDisplay').innerText = firebaseUser.email;
-            
             loadDataFromCloud();
         } else {
             currentUser = null;
@@ -443,41 +451,29 @@
         const confirmSenha = document.getElementById('senhaConfirmInput').value;
         const msg = document.getElementById('authMsg');
         
-        if(!email || senha.length < 6) { msg.innerText = "Email inválido ou senha menor que 6 caracteres."; return; }
-        if(senha !== confirmSenha) { msg.innerText = "As senhas digitadas não coincidem."; return; }
+        if(!email || senha.length < 6) { msg.innerText = "Email inválido ou senha menor que 6 chars."; return; }
+        if(senha !== confirmSenha) { msg.innerText = "Senhas não coincidem."; return; }
         
-        document.getElementById('loadingAuth').style.display = 'block';
-        msg.innerText = "";
-
-        auth.createUserWithEmailAndPassword(email, senha).then((userCredential) => {
-            db.collection('users').doc(userCredential.user.uid).set({ name: "Novo Operador", meta: 1000, data: {} });
-        }).catch((error) => { 
-            document.getElementById('loadingAuth').style.display = 'none';
-            msg.innerText = "Erro ao criar conta. Verifique os dados."; 
-        });
+        document.getElementById('loadingAuth').style.display = 'block'; msg.innerText = "";
+        auth.createUserWithEmailAndPassword(email, senha).then((cred) => {
+            db.collection('users').doc(cred.user.uid).set({ name: "Operador", meta: 1000, data: {} });
+        }).catch((err) => { document.getElementById('loadingAuth').style.display = 'none'; msg.innerText = err.message; });
     }
 
     function fazerLogin() {
         const email = document.getElementById('emailInput').value;
         const senha = document.getElementById('senhaInput').value;
         const msg = document.getElementById('authMsg');
-        
-        if(!email || !senha) { msg.innerText = "Preencha os campos corretamente."; return; }
-
-        document.getElementById('loadingAuth').style.display = 'block';
-        msg.innerText = "";
-
-        auth.signInWithEmailAndPassword(email, senha).catch((error) => {
-            document.getElementById('loadingAuth').style.display = 'none';
-            msg.innerText = "Email ou senha incorretos.";
+        if(!email || !senha) { msg.innerText = "Preencha os campos."; return; }
+        document.getElementById('loadingAuth').style.display = 'block'; msg.innerText = "";
+        auth.signInWithEmailAndPassword(email, senha).catch(() => {
+            document.getElementById('loadingAuth').style.display = 'none'; msg.innerText = "Credenciais incorretas.";
         });
     }
 
     function fazerLogout() { auth.signOut(); }
 
-    // =========================================================================
-    // LÓGICA DO SAAS E BANCO DE DADOS (DASHBOARD/OPERAÇÕES)
-    // =========================================================================
+    // --- DADOS E DASHBOARD ---
     const CONFIG = { bau: 10 };
     const mesesNomes = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
     let currentDate = new Date().toISOString().split('T')[0];
@@ -486,59 +482,48 @@
     function loadDataFromCloud() {
         if(!currentUser) return;
         db.collection('users').doc(currentUser.uid).get().then(doc => {
-            if (doc.exists) { user = doc.data(); } 
-            else { db.collection('users').doc(currentUser.uid).set(user); }
+            if (doc.exists) { user = doc.data(); } else { db.collection('users').doc(currentUser.uid).set(user); }
             
             document.getElementById('setUserName').value = user.name || "Operador";
             document.getElementById('setMeta').value = user.meta || 1000;
             document.getElementById('userNameDisplay').innerText = user.name || "Operador";
             
             const mesAtual = new Date().getMonth();
-            document.getElementById('labelMonth').innerText = `Lucro de ${mesesNomes[mesAtual]}`;
-            document.getElementById('label7d').innerText = `Últimos 7 dias (${mesesNomes[mesAtual]})`;
-            document.getElementById('label15d').innerText = `Últimos 15 dias (${mesesNomes[mesAtual]})`;
-            document.getElementById('label30d').innerText = `Últimos 30 dias (${mesesNomes[mesAtual]})`;
-            document.getElementById('labelEq').innerText = `Fluxo de Caixa Diário (${mesesNomes[mesAtual]})`;
-
-            updateMonthFilterOptions();
-            renderDash();
+            document.getElementById('labelMonth').innerText = `Mês (${mesesNomes[mesAtual]})`;
+            document.getElementById('label7d').innerText = `7 Dias (${mesesNomes[mesAtual]})`;
+            document.getElementById('label15d').innerText = `15 Dias (${mesesNomes[mesAtual]})`;
+            document.getElementById('label30d').innerText = `30 Dias (${mesesNomes[mesAtual]})`;
+            
+            updateMonthFilterOptions(); renderDash();
             if(document.getElementById('view-operations').classList.contains('active')) renderOps();
-        }).catch(err => {
-            console.error("Erro ao puxar dados da nuvem:", err);
-            alert("Erro de conexão. Verifique sua internet.");
-        });
+        }).catch(err => { alert("Erro de conexão."); });
     }
 
     function saveToCloud() {
         if(!currentUser) return;
-        db.collection('users').doc(currentUser.uid).set(user).catch(err => console.error("Erro ao salvar:", err));
+        db.collection('users').doc(currentUser.uid).set(user);
     }
 
-    // --- NAVEGAÇÃO ---
     function navTo(v, el) {
         document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active')); el.classList.add('active');
         document.querySelectorAll('.view-section').forEach(s=>s.classList.remove('active')); document.getElementById(`view-${v}`).classList.add('active');
-        document.getElementById('pageTitle').innerText = {'dashboard':'Dashboard Geral','operations':'Console de Operações','reports':'Relatórios e Extrato Oficial','settings':'Ajustes de Conta'}[v];
+        document.getElementById('pageTitle').innerText = {'dashboard':'Dashboard','operations':'Operações','reports':'Extrato Oficial','settings':'Ajustes'}[v];
         
+        // Fecha menu no mobile ao clicar
+        document.getElementById('mainSidebar').classList.remove('open');
+        document.getElementById('mobileOverlay').classList.remove('open');
+
         if(v==='dashboard') renderDash(); 
         if(v==='operations') renderOps(); 
-        if(v==='reports') {
-            const prevVal = document.getElementById('reportMonthSelect').value;
-            updateMonthFilterOptions();
-            if(prevVal) document.getElementById('reportMonthSelect').value = prevVal;
-            renderReports();
-        }
+        if(v==='reports') { updateMonthFilterOptions(); renderReports(); }
     }
 
-    // --- RENDER DASHBOARD ---
     function renderDash() {
         let dTotal=0, mTotal=0, t7=0, t15=0, t30=0;
-        
         const todayStr = new Date().toISOString().split('T')[0]; 
         const [currY, currM] = todayStr.split('-');
         const todayMs = new Date(todayStr).getTime();
         const monthlyData = {};
-
         if(!user.data) user.data = {};
 
         Object.keys(user.data).forEach(d => {
@@ -551,325 +536,141 @@
             monthlyData[monthKey] += t;
 
             if(d === todayStr) dTotal = t;
-
-            const dateMs = new Date(d).getTime();
-            const diffDays = Math.floor((todayMs - dateMs) / (1000 * 60 * 60 * 24));
+            const diffDays = Math.floor((todayMs - new Date(d).getTime()) / 86400000);
             
             if(diffDays >= 0 && y === currY && m === currM) {
-                if(diffDays < 7) t7 += t;
-                if(diffDays < 15) t15 += t;
-                if(diffDays < 30) t30 += t;
+                if(diffDays < 7) t7 += t; if(diffDays < 15) t15 += t; if(diffDays < 30) t30 += t;
             }
         });
 
-        const currMonthKey = `${currY}-${currM}`;
-        if(monthlyData[currMonthKey] === undefined) monthlyData[currMonthKey] = 0;
-        mTotal = monthlyData[currMonthKey];
+        mTotal = monthlyData[`${currY}-${currM}`] || 0;
 
         document.getElementById('kpiDay').innerText = `R$ ${dTotal.toFixed(2)}`;
         document.getElementById('kpiMonth').innerText = `R$ ${mTotal.toFixed(2)}`;
-        document.getElementById('kpiMeta').innerText = `R$ ${(user.meta || 1000).toFixed(2)}`;
+        document.getElementById('kpiMeta').innerText = `R$ ${(user.meta || 1000).toFixed(0)}`;
         
-        document.getElementById('kpi7d').innerText = `R$ ${t7.toFixed(2)}`;
-        document.getElementById('kpi15d').innerText = `R$ ${t15.toFixed(2)}`;
-        document.getElementById('kpi30d').innerText = `R$ ${t30.toFixed(2)}`;
-
-        document.getElementById('kpi7d').style.color = t7 >= 0 ? 'var(--success)' : 'var(--danger)';
-        document.getElementById('kpi15d').style.color = t15 >= 0 ? 'var(--success)' : 'var(--danger)';
-        document.getElementById('kpi30d').style.color = t30 >= 0 ? 'var(--success)' : 'var(--danger)';
+        document.getElementById('kpi7d').innerText = `R$ ${t7.toFixed(0)}`; document.getElementById('kpi7d').style.color = t7>=0?'var(--success)':'var(--danger)';
+        document.getElementById('kpi15d').innerText = `R$ ${t15.toFixed(0)}`; document.getElementById('kpi15d').style.color = t15>=0?'var(--success)':'var(--danger)';
+        document.getElementById('kpi30d').innerText = `R$ ${t30.toFixed(0)}`; document.getElementById('kpi30d').style.color = t30>=0?'var(--success)':'var(--danger)';
         
-        const core = document.getElementById('kpiDayCard');
-        core.classList.remove('profit','loss');
+        const core = document.getElementById('kpiDayCard'); core.classList.remove('profit','loss');
         if(dTotal>0) core.classList.add('profit'); else if(dTotal<0) core.classList.add('loss');
 
-        const analyticsGrid = document.getElementById('monthlyAnalyticsGrid');
-        analyticsGrid.innerHTML = '';
-        const sortedMonths = Object.keys(monthlyData).sort().reverse();
-
-        if(sortedMonths.length === 0) {
-            analyticsGrid.innerHTML = `<div style="color:var(--text-muted); font-size:14px; padding: 20px 0;">Nenhum histórico disponível ainda.</div>`;
-        } else {
-            sortedMonths.forEach(key => {
-                const [y, m] = key.split('-');
-                const val = monthlyData[key];
-                const monthName = mesesNomes[parseInt(m) - 1];
-
-                const card = document.createElement('div');
-                card.className = 'card clickable-card';
-                card.onclick = () => openRanking(key);
-                card.innerHTML = `
-                    <div class="card-label">${monthName} / ${y}</div>
-                    <div class="card-val" style="font-size:28px; color: ${val >= 0 ? 'var(--success)' : 'var(--danger)'}">R$ ${val.toFixed(2)}</div>
-                `;
-                analyticsGrid.appendChild(card);
-            });
-        }
+        const grid = document.getElementById('monthlyAnalyticsGrid'); grid.innerHTML = '';
+        const sorted = Object.keys(monthlyData).sort().reverse();
+        if(sorted.length === 0) grid.innerHTML = `<div style="color:var(--text-muted); font-size:13px;">Sem dados.</div>`;
+        else sorted.forEach(k => {
+            const val = monthlyData[k];
+            grid.innerHTML += `<div class="card clickable-card" onclick="openRanking('${k}')"><div class="card-label">${mesesNomes[parseInt(k.split('-')[1])-1]} / ${k.split('-')[0]}</div><div class="card-val" style="font-size:24px; color:${val>=0?'var(--success)':'var(--danger)'}">R$ ${val.toFixed(2)}</div></div>`;
+        });
         renderEqualizer(currY, currM);
     }
 
-    // --- GRÁFICO EQUALIZADOR ---
     function renderEqualizer(currY, currM) {
-        const chartBox = document.getElementById('equalizerChart');
-        const tooltip = document.getElementById('chartTooltip');
-        const daysInMonth = new Date(currY, currM, 0).getDate();
-        let maxAbs = 0; const chartData = [];
-
-        for(let i=1; i<=daysInMonth; i++) {
+        const box = document.getElementById('equalizerChart'); const tip = document.getElementById('chartTooltip');
+        const days = new Date(currY, currM, 0).getDate();
+        let max = 0; const cData = [];
+        for(let i=1; i<=days; i++) {
             const dStr = `${currY}-${currM}-${String(i).padStart(2,'0')}`;
-            const ops = user.data[dStr] || [];
-            const p = ops.reduce((a,o)=>a+((o.s+o.b*CONFIG.bau)-(o.d+o.r+o.e)),0);
-            chartData.push({ day: i, profit: p, date: dStr });
-            if(Math.abs(p) > maxAbs) maxAbs = Math.abs(p);
+            const p = (user.data[dStr]||[]).reduce((a,o)=>a+((o.s+o.b*CONFIG.bau)-(o.d+o.r+o.e)),0);
+            cData.push({ day: i, p: p }); if(Math.abs(p)>max) max = Math.abs(p);
         }
-
-        if(maxAbs === 0) { chartBox.innerHTML = '<div style="display:flex; height:100%; align-items:center; justify-content:center; color:var(--text-muted);">Nenhuma operação registrada no mês atual.</div>'; return; }
-
-        const w = chartBox.clientWidth || 800; const h = chartBox.clientHeight || 280; const pad = 20; const zeroY = h / 2;
-        let svg = `<svg width="100%" height="100%" viewBox="0 0 ${w} ${h}" style="overflow:visible"><line x1="${pad}" y1="${zeroY}" x2="${w-pad}" y2="${zeroY}" stroke="rgba(255,255,255,0.1)" stroke-dasharray="4"/>`;
-        const barW = Math.max(4, (w - pad*2) / daysInMonth - 6);
-
-        chartData.forEach((d, i) => {
-            const x = pad + (i * ((w - pad*2) / daysInMonth)) + ((w - pad*2)/daysInMonth/2) - (barW/2);
-            let barH = (Math.abs(d.profit) / maxAbs) * (h/2 - pad);
-            if(barH < 3 && d.profit !== 0) barH = 3; 
-
-            let y = zeroY; let color = 'rgba(255,255,255,0.1)'; let glow = 'none';
-            if(d.profit > 0) { y = zeroY - barH; color = 'var(--success)'; glow = 'drop-shadow(0 0 10px rgba(16,185,129,0.5))'; } 
-            else if(d.profit < 0) { y = zeroY; color = 'var(--danger)'; glow = 'drop-shadow(0 0 10px rgba(244,63,94,0.5))'; }
-
-            if(d.profit !== 0) svg += `<rect x="${x}" y="${y}" width="${barW}" height="${barH}" fill="${color}" rx="3" style="filter:${glow}; cursor:pointer; transition:0.2s;" class="eq-bar" data-val="${d.profit}" data-day="${d.day}" />`;
-            else svg += `<rect x="${x}" y="${zeroY-1.5}" width="${barW}" height="3" fill="rgba(255,255,255,0.05)" rx="1.5" />`;
-        });
-        svg += `</svg>`; chartBox.innerHTML = svg;
-
-        chartBox.querySelectorAll('.eq-bar').forEach(bar => {
-            bar.addEventListener('mouseover', (e) => {
-                const val = parseFloat(bar.getAttribute('data-val'));
-                bar.style.opacity = '0.6';
-                tooltip.innerHTML = `Dia ${bar.getAttribute('data-day')}<br><span style="font-size:16px; color:${val>=0?'var(--success)':'var(--danger)'}">R$ ${val.toFixed(2)}</span>`;
-                tooltip.style.opacity = '1';
-                const rect = chartBox.getBoundingClientRect(); tooltip.style.left = (e.clientX - rect.left) + 'px'; tooltip.style.top = (e.clientY - rect.top - 60) + 'px';
-            });
-            bar.addEventListener('mousemove', (e) => { const rect = chartBox.getBoundingClientRect(); tooltip.style.left = (e.clientX - rect.left) + 'px'; tooltip.style.top = (e.clientY - rect.top - 60) + 'px'; });
-            bar.addEventListener('mouseout', () => { bar.style.opacity = '1'; tooltip.style.opacity = '0'; });
+        if(max===0) { box.innerHTML = '<div style="color:var(--text-muted); font-size:12px; display:flex; align-items:center; justify-content:center; height:100%;">Sem dados.</div>'; return; }
+        const w = box.clientWidth||300; const h = box.clientHeight||200; const pad=10; const zY = h/2;
+        let svg = `<svg width="100%" height="100%" viewBox="0 0 ${w} ${h}"><line x1="${pad}" y1="${zY}" x2="${w-pad}" y2="${zY}" stroke="rgba(255,255,255,0.1)" stroke-dasharray="2"/></svg>`;
+        box.innerHTML = svg;
+        // Desenha barras via DOM para Tooltip funcionar fácil no mobile
+        const svgEl = box.querySelector('svg');
+        const bW = Math.max(2, (w-pad*2)/days - 2);
+        cData.forEach((d,i) => {
+            const x = pad + (i*((w-pad*2)/days)) + ((w-pad*2)/days/2) - (bW/2);
+            let bH = (Math.abs(d.p)/max)*(h/2-pad); if(bH<2 && d.p!==0) bH=2;
+            let y = zY; let fill = 'rgba(255,255,255,0.1)';
+            if(d.p>0) { y = zY-bH; fill = 'var(--success)'; } else if(d.p<0) { fill = 'var(--danger)'; }
+            const r = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+            r.setAttribute('x', x); r.setAttribute('y', d.p!==0?y:zY-1); r.setAttribute('width', bW); r.setAttribute('height', d.p!==0?bH:2);
+            r.setAttribute('fill', fill); r.setAttribute('rx', 1);
+            if(d.p!==0) {
+                r.onclick = (e) => { tip.innerHTML=`Dia ${d.day}<br><b style="color:${fill}">R$ ${d.p.toFixed(0)}</b>`; tip.style.opacity=1; const rct = box.getBoundingClientRect(); tip.style.left=(e.clientX-rct.left)+'px'; tip.style.top=(e.clientY-rct.top-40)+'px'; setTimeout(()=>tip.style.opacity=0, 2000);};
+            }
+            svgEl.appendChild(r);
         });
     }
-
     window.addEventListener('resize', () => { if(document.getElementById('view-dashboard').classList.contains('active')) renderDash(); });
 
-    // --- MODAL RANKING ---
-    function openRanking(monthKey) {
-        const [y, m] = monthKey.split('-');
-        document.getElementById('rankingTitle').innerText = `${mesesNomes[parseInt(m) - 1]} DE ${y}`;
-
-        let daysArray = [];
-        Object.keys(user.data).forEach(d => {
-            if(d.startsWith(monthKey) && user.data[d].length > 0) {
-                daysArray.push({ date: d, profit: user.data[d].reduce((a,o)=>a+((o.s+o.b*CONFIG.bau)-(o.d+o.r+o.e)),0) });
-            }
+    function openRanking(mKey) {
+        document.getElementById('rankingTitle').innerText = `${mesesNomes[parseInt(mKey.split('-')[1])-1]} ${mKey.split('-')[0]}`;
+        let arr = [];
+        Object.keys(user.data).forEach(d => { if(d.startsWith(mKey) && user.data[d].length>0) arr.push({d:d, p:user.data[d].reduce((a,o)=>a+((o.s+o.b*CONFIG.bau)-(o.d+o.r+o.e)),0)}); });
+        arr.sort((a,b)=>b.p-a.p);
+        let h = arr.length===0 ? '<p style="text-align:center; color:#a1a1aa;">Vazio</p>' : '';
+        arr.forEach((i,x) => {
+            let c='#a1a1aa', t=''; if(x===0){c='#fbbf24';t='🥇'}else if(x===1){c='#e2e8f0';t='🥈'}else if(x===2){c='#d97706';t='🥉'}
+            h+=`<div class="ranking-item"><div style="color:${c}; font-weight:800;">${t} #${x+1} - Dia ${i.d.split('-')[2]}</div><div style="color:${i.p>=0?'#10b981':'#f43f5e'}; font-weight:800;">R$ ${i.p.toFixed(0)}</div></div>`;
         });
-        daysArray.sort((a, b) => b.profit - a.profit);
-
-        let html = '';
-        if(daysArray.length === 0) html = '<div style="text-align:center; color:var(--text-muted); padding:20px;">Nenhuma operação registrada.</div>';
-        else {
-            daysArray.forEach((item, index) => {
-                const dd = item.date.split('-')[2];
-                let rankStyle = 'color: var(--text-muted); font-weight:600;'; let trophy = '';
-                if(index === 0) { rankStyle = 'color: #fbbf24; font-weight:800; text-shadow:0 0 10px rgba(251,191,36,0.3);'; trophy = '🥇'; }
-                else if(index === 1) { rankStyle = 'color: #e2e8f0; font-weight:800;'; trophy = '🥈'; }
-                else if(index === 2) { rankStyle = 'color: #d97706; font-weight:800;'; trophy = '🥉'; }
-
-                html += `<div class="ranking-item"><div style="${rankStyle} display:flex; align-items:center; gap:8px;"><span style="font-size:16px; width:20px; text-align:center;">${trophy}</span><span>#${index+1} — Dia ${dd}</span></div><div style="font-weight:800; font-size:15px; color:${item.profit >= 0 ? 'var(--success)' : 'var(--danger)'}">R$ ${item.profit.toFixed(2)}</div></div>`;
-            });
-        }
-        document.getElementById('rankingList').innerHTML = html;
-        document.getElementById('rankingModal').classList.add('show');
+        document.getElementById('rankingList').innerHTML = h; document.getElementById('rankingModal').classList.add('show');
     }
     function closeRanking() { document.getElementById('rankingModal').classList.remove('show'); }
 
-    // --- OPERAÇÕES ---
-    function cloneOp(i) {
-        const base = user.data[currentDate][i];
-        const cloned = { d: base.d, r: base.r, e: base.e, s: 0, b: 0 };
-        user.data[currentDate].splice(i + 1, 0, cloned);
-        saveToCloud(); 
-        renderOps();
-    }
-
+    function cloneOp(i) { const b=user.data[currentDate][i]; user.data[currentDate].splice(i+1,0,{d:b.d,r:b.r,e:b.e,s:0,b:0}); saveToCloud(); renderOps(); }
     function renderOps() {
-        const [y,m,d] = currentDate.split('-'); document.getElementById('opsDateDisplay').innerText = `${d}/${m}/${y}`;
+        const [y,m,d] = currentDate.split('-'); document.getElementById('opsDateDisplay').innerText = `${d}/${m}`;
         const list = document.getElementById('opsList'); list.innerHTML = '';
-        const ops = user.data[currentDate] || [];
-        let profit=0;
-        
+        const ops = user.data[currentDate] || []; let profit=0;
         ops.forEach((o,i) => {
             const p = (o.s+o.b*CONFIG.bau)-(o.d+o.r+o.e); profit+=p;
-            
-            list.innerHTML += `
-                <div class="op-row-card">
-                    <div style="font-size:12px; font-weight:800; color:var(--text-muted); text-align:center;">${i+1}</div>
-                    <div><input class="op-input cost-in" type="number" value="${o.d===0?'':o.d}" placeholder="0" onchange="upd(${i},'d',this.value)"></div>
-                    <div><input class="op-input cost-in" type="number" value="${o.r===0?'':o.r}" placeholder="0" onchange="upd(${i},'r',this.value)"></div>
-                    <div><input class="op-input cost-in" type="number" value="${o.e===0?'':o.e}" placeholder="0" style="color:var(--danger)" onchange="upd(${i},'e',this.value)"></div>
-                    <div><input class="op-input gain-in" type="number" value="${o.s===0?'':o.s}" placeholder="0" onchange="upd(${i},'s',this.value)"></div>
-                    <div><input class="op-input gain-in" type="number" value="${o.b===0?'':o.b}" placeholder="0" onchange="upd(${i},'b',this.value)"></div>
-                    <div style="text-align:right; font-weight:800; font-size:18px; letter-spacing:-0.5px; color:${p>=0?'var(--success)':'var(--danger)'}">R$ ${p.toFixed(0)}</div>
-                    
-                    <div style="display:flex; gap:8px; justify-content:center;">
-                        <button onclick="cloneOp(${i})" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:18px; transition:0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-muted)'" title="Clonar custos">⧉</button>
-                        <button onclick="del(${i})" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:22px; transition:0.2s;" onmouseover="this.style.color='var(--danger)'" onmouseout="this.style.color='var(--text-muted)'" title="Excluir">×</button>
-                    </div>
-                </div>`;
+            list.innerHTML += `<div class="op-row-card">
+                <div style="font-size:11px; font-weight:800; color:var(--text-muted); text-align:center;">${i+1}</div>
+                <div><input class="op-input cost-in" type="number" value="${o.d===0?'':o.d}" placeholder="0" onchange="upd(${i},'d',this.value)"></div>
+                <div><input class="op-input cost-in" type="number" value="${o.r===0?'':o.r}" placeholder="0" onchange="upd(${i},'r',this.value)"></div>
+                <div><input class="op-input cost-in" type="number" value="${o.e===0?'':o.e}" placeholder="0" style="color:var(--danger)" onchange="upd(${i},'e',this.value)"></div>
+                <div><input class="op-input gain-in" type="number" value="${o.s===0?'':o.s}" placeholder="0" onchange="upd(${i},'s',this.value)"></div>
+                <div><input class="op-input gain-in" type="number" value="${o.b===0?'':o.b}" placeholder="0" onchange="upd(${i},'b',this.value)"></div>
+                <div style="text-align:right; font-weight:800; font-size:15px; color:${p>=0?'var(--success)':'var(--danger)'}">R$ ${p.toFixed(0)}</div>
+                <div style="display:flex; gap:8px; justify-content:center;">
+                    <button onclick="cloneOp(${i})" style="background:none; border:none; color:var(--text-muted); font-size:16px;">⧉</button>
+                    <button onclick="del(${i})" style="background:none; border:none; color:var(--text-muted); font-size:20px;">×</button>
+                </div></div>`;
         });
-        
         document.getElementById('opsDayTotal').innerText = `R$ ${profit.toFixed(2)}`;
         document.getElementById('opsDayTotal').style.color = profit>=0 ? 'var(--success)' : 'var(--danger)';
-
-        const uMeta = user.meta || 1000;
-        const pct = Math.min(100, Math.max(0, (profit/uMeta)*100));
-        const bar = document.getElementById('opsProgressBar');
-        bar.style.width = pct+'%';
-        bar.className = pct>=100 ? 'ops-progress-fill hit' : 'ops-progress-fill';
-        document.getElementById('opsMetaVals').innerText = `R$ ${profit.toFixed(0)} / R$ ${uMeta}`;
+        const uM = user.meta||1000; const pct = Math.min(100, Math.max(0, (profit/uM)*100));
+        document.getElementById('opsProgressBar').style.width = pct+'%';
+        document.getElementById('opsProgressBar').className = pct>=100 ? 'ops-progress-fill hit' : 'ops-progress-fill';
+        document.getElementById('opsMetaVals').innerText = `R$ ${profit.toFixed(0)} / R$ ${uM}`;
     }
 
-    // --- RELATÓRIOS MENSAL OFICIAL ---
     function updateMonthFilterOptions() {
-        const select = document.getElementById('reportMonthSelect');
-        const monthsSet = new Set();
-        
-        Object.keys(user.data).forEach(d => {
-            if(user.data[d].length > 0) monthsSet.add(d.substring(0, 7));
-        });
-        
-        const sortedMonths = Array.from(monthsSet).sort().reverse();
-        select.innerHTML = '';
-        
-        if(sortedMonths.length === 0) {
-            const [y, m] = new Date().toISOString().substring(0, 7).split('-');
-            select.innerHTML = `<option value="${y}-${m}">${mesesNomes[parseInt(m)-1]} / ${y}</option>`;
-            return;
-        }
-
-        sortedMonths.forEach(mStr => {
-            const [y, m] = mStr.split('-');
-            select.innerHTML += `<option value="${mStr}">${mesesNomes[parseInt(m)-1]} / ${y}</option>`;
-        });
+        const sel = document.getElementById('reportMonthSelect'); const s = new Set();
+        Object.keys(user.data).forEach(d => { if(user.data[d].length>0) s.add(d.substring(0,7)); });
+        const arr = Array.from(s).sort().reverse(); sel.innerHTML = '';
+        if(arr.length===0) { const [y,m] = new Date().toISOString().substring(0,7).split('-'); sel.innerHTML=`<option value="${y}-${m}">${mesesNomes[parseInt(m)-1]} ${y}</option>`; return; }
+        arr.forEach(x => { const [y,m]=x.split('-'); sel.innerHTML+=`<option value="${x}">${mesesNomes[parseInt(m)-1]} ${y}</option>`; });
     }
-
     function renderReports() {
-        const tbody = document.getElementById('reportTableBody'); 
-        const tfoot = document.getElementById('reportTableFoot');
-        const selectedMonth = document.getElementById('reportMonthSelect').value;
-        
-        if(!selectedMonth) return;
-
-        const validDates = Object.keys(user.data)
-            .filter(d => d.startsWith(selectedMonth) && user.data[d].length > 0)
-            .sort().reverse();
-        
-        tbody.innerHTML = '';
-        
-        if(validDates.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:30px; color:var(--text-muted);">Nenhuma operação registrada neste mês.</td></tr>`;
-            tfoot.innerHTML = '';
-            return;
-        }
-
-        let totalInvM = 0, totalRetM = 0, totalLucM = 0;
-
-        validDates.forEach(d => {
-            const ops = user.data[d];
-            let inv=0, ret=0, luc=0;
-            
-            ops.forEach(o => { inv+=(o.d+o.r+o.e); ret+=(o.s+o.b*CONFIG.bau); });
-            luc = ret - inv;
-            
-            totalInvM += inv;
-            totalRetM += ret;
-            totalLucM += luc;
-
-            const [y,m,day] = d.split('-');
-            tbody.innerHTML += `<tr>
-                <td style="color:var(--text-muted); font-weight:700;">${day}/${m}/${y}</td>
-                <td style="color:var(--danger)">R$ ${inv.toFixed(2)}</td>
-                <td style="color:var(--success)">R$ ${ret.toFixed(2)}</td>
-                <td style="font-weight:800; color:${luc>=0?'var(--success)':'var(--danger)'}">R$ ${luc.toFixed(2)}</td>
-            </tr>`;
+        const tb = document.getElementById('reportTableBody'); const tf = document.getElementById('reportTableFoot');
+        const sM = document.getElementById('reportMonthSelect').value; if(!sM) return;
+        const vD = Object.keys(user.data).filter(d=>d.startsWith(sM) && user.data[d].length>0).sort().reverse();
+        tb.innerHTML=''; if(vD.length===0){tb.innerHTML=`<tr><td colspan="4" style="text-align:center; padding:20px; color:#a1a1aa;">Vazio</td></tr>`;tf.innerHTML='';return;}
+        let tI=0, tR=0, tL=0;
+        vD.forEach(d => {
+            let i=0, r=0, l=0; user.data[d].forEach(o=>{i+=(o.d+o.r+o.e); r+=(o.s+o.b*CONFIG.bau);}); l=r-i; tI+=i; tR+=r; tL+=l;
+            tb.innerHTML+=`<tr><td style="color:#a1a1aa; font-weight:700;">${d.split('-')[2]}/${d.split('-')[1]}</td><td style="color:#f43f5e">R$ ${i.toFixed(0)}</td><td style="color:#10b981">R$ ${r.toFixed(0)}</td><td style="font-weight:800; color:${l>=0?'#10b981':'#f43f5e'}">R$ ${l.toFixed(0)}</td></tr>`;
         });
-
-        tfoot.innerHTML = `
-            <tr>
-                <td style="color:var(--text-main); font-weight:800;">BALANÇO FINAL</td>
-                <td style="color:var(--danger); font-weight:800; font-size:16px;">R$ ${totalInvM.toFixed(2)}</td>
-                <td style="color:var(--success); font-weight:800; font-size:16px;">R$ ${totalRetM.toFixed(2)}</td>
-                <td style="font-weight:800; font-size:20px; color:${totalLucM>=0?'var(--success)':'var(--danger)'}">R$ ${totalLucM.toFixed(2)}</td>
-            </tr>
-        `;
+        tf.innerHTML=`<tr><td style="font-weight:800;">TOTAL</td><td style="color:#f43f5e; font-weight:800;">R$ ${tI.toFixed(0)}</td><td style="color:#10b981; font-weight:800;">R$ ${tR.toFixed(0)}</td><td style="font-weight:800; font-size:16px; color:${tL>=0?'#10b981':'#f43f5e'}">R$ ${tL.toFixed(0)}</td></tr>`;
     }
 
-    // --- ACÕES COM O BANCO DE DADOS ---
-    function addOp() { if(!user.data[currentDate]) user.data[currentDate]=[]; user.data[currentDate].push({d:0,r:0,e:0,s:0,b:0}); saveToCloud(); renderOps(); setTimeout(()=>document.querySelector('.view-section.active').scrollTo({top: 9999, behavior: 'smooth'}), 100); }
-    function upd(i,f,v) { user.data[currentDate][i][f] = Number(v) || 0; saveToCloud(); renderOps(); }
+    function addOp() { if(!user.data[currentDate]) user.data[currentDate]=[]; user.data[currentDate].push({d:0,r:0,e:0,s:0,b:0}); saveToCloud(); renderOps(); setTimeout(()=>document.querySelector('.view-section.active').scrollTo({top:9999, behavior:'smooth'}), 100); }
+    function upd(i,f,v) { user.data[currentDate][i][f] = Number(v)||0; saveToCloud(); renderOps(); }
     function del(i) { user.data[currentDate].splice(i,1); saveToCloud(); renderOps(); }
-    function changeDate(d) { const dt = new Date(currentDate); dt.setDate(dt.getDate()+d); currentDate = dt.toISOString().split('T')[0]; renderOps(); }
+    function changeDate(d) { const dt=new Date(currentDate); dt.setDate(dt.getDate()+d); currentDate=dt.toISOString().split('T')[0]; renderOps(); }
     
-    function saveSettings() { 
-        user.name=document.getElementById('setUserName').value || "Usuário"; 
-        user.meta=Number(document.getElementById('setMeta').value) || 1000; 
-        saveToCloud(); 
-        document.getElementById('userNameDisplay').innerText = user.name; 
-        alert('Configurações salvas na nuvem com sucesso!'); 
-        renderDash(); 
-    }
-    
-    function importData(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                const importedData = JSON.parse(e.target.result);
-                if(importedData.data) { 
-                    user = {...user, ...importedData}; 
-                    saveToCloud();
-                    renderDash(); 
-                    if(document.getElementById('view-reports').classList.contains('active')) {
-                        updateMonthFilterOptions(); renderReports();
-                    }
-                    alert("Backup enviado e restaurado na nuvem com sucesso!");
-                } else { alert("Arquivo inválido."); }
-            } catch(err) { alert("Erro ao ler o arquivo JSON."); }
-        };
-        reader.readAsText(file);
-        event.target.value = ''; 
-    }
+    function saveSettings() { user.name=document.getElementById('setUserName').value||"Usuário"; user.meta=Number(document.getElementById('setMeta').value)||1000; saveToCloud(); document.getElementById('userNameDisplay').innerText=user.name; alert('Salvo na nuvem!'); renderDash(); }
+    function importData(e) { const f=e.target.files[0]; if(!f)return; const r=new FileReader(); r.onload=x=>{ try{const d=JSON.parse(x.target.result); if(d.data){user={...user,...d}; saveToCloud(); renderDash(); alert("Restaurado!");}else alert("Erro"); }catch(err){alert("Erro");}}; r.readAsText(f); e.target.value=''; }
+    function exportData() { const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(user)],{type:'application/json'})); a.download=`VTR_BKP.json`; a.click(); }
+    function exportCSV() { let c="data:text/csv;charset=utf-8,Data,Investido,Retornado,Lucro\n"; Object.keys(user.data).sort().forEach(d=>{if(user.data[d].length===0)return; let i=0,r=0; user.data[d].forEach(o=>{i+=(o.d+o.r+o.e);r+=(o.s+o.b*CONFIG.bau);}); c+=`${d},${i.toFixed(2)},${r.toFixed(2)},${(r-i).toFixed(2)}\n`;}); const l=document.createElement("a"); l.href=encodeURI(c); l.download="extrato.csv"; document.body.appendChild(l); l.click(); l.remove(); }
 
-    function exportData() { const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(user)],{type:'application/json'})); a.download=`VTR_CLOUD_BKP_${new Date().toISOString().split('T')[0]}.json`; a.click(); }
-
-    function exportCSV() {
-        let csvContent = "data:text/csv;charset=utf-8,Data,Investido,Retornado,Lucro\n";
-        Object.keys(user.data).sort().forEach(d => {
-            const ops = user.data[d];
-            if(ops.length===0) return;
-            let inv=0, ret=0;
-            ops.forEach(o => { inv+=(o.d+o.r+o.e); ret+=(o.s+o.b*CONFIG.bau); });
-            csvContent += `${d},${inv.toFixed(2)},${ret.toFixed(2)},${(ret-inv).toFixed(2)}\n`;
-        });
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement("a"); link.setAttribute("href", encodedUri); link.setAttribute("download", "relatorio_financeiro.csv");
-        document.body.appendChild(link); link.click(); link.remove();
-    }
-
-    document.addEventListener('keydown', e => { 
-        if(e.code === 'Space' && e.target.tagName !== 'INPUT') { 
-            e.preventDefault(); 
-            if(document.getElementById('view-operations').classList.contains('active')) addOp(); 
-            else navTo('operations', document.querySelectorAll('.nav-item')[1]); 
-        } 
-        if(e.code === 'Escape') closeRanking();
-    });
+    document.addEventListener('keydown', e => { if(e.code==='Space' && e.target.tagName!=='INPUT') { e.preventDefault(); if(document.getElementById('view-operations').classList.contains('active')) addOp(); else navTo('operations', document.querySelectorAll('.nav-item')[1]); } if(e.code==='Escape') closeRanking(); });
 </script>
 </body>
 </html>
